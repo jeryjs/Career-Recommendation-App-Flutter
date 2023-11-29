@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors, prefer_final_fields
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
@@ -85,25 +86,25 @@ class _QuestionScreenState extends State<QuestionScreen> {
       "Technical Writing"
     ],
     [
+      "Get fit",
+      "Volunteer",
+      "Buy a house",
+      "Travel more",
+      "Write a book",
+      "Change careers",
+      "Run a marathon",
+      "Get a promotion",
       "Start a business",
       "Learn a new skill",
-      "Get a promotion",
-      "Change careers",
-      "Improve leadership skills",
+      "Improve creativity",
+      "Save for retirement",
+      "Learn a new language",
       "Improve communication",
       "Improve problem solving",
-      "Improve technical skills",
-      "Improve creativity",
       "Improve time management",
+      "Improve technical skills",
       "Improve work-life balance",
-      "Travel more",
-      "Volunteer",
-      "Learn a new language",
-      "Write a book",
-      "Run a marathon",
-      "Buy a house",
-      "Save for retirement",
-      "Get fit",
+      "Improve leadership skills",
       "Spend more time with family and friends"
     ],
     [''],
@@ -131,22 +132,28 @@ class _QuestionScreenState extends State<QuestionScreen> {
       margin: EdgeInsets.all(2),
       child: Column(
         children: [
-          Text('Step $_step out of $_totSteps'),
-          SliderTheme(
-            data: SliderThemeData(
-              trackHeight: 2,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
-            ),
-            child: Slider(
-              value: _step / _totSteps,
-              onChanged: (double value) {
-                gotoStep(
-                    ((value * _totSteps).toInt() > 0)
-                    ? (value * _totSteps).toInt()
-                    : 1
-                  );
-              },
+          Align(
+            alignment: Alignment.centerRight,
+            child: SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 2,
+                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
+                overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+              ),
+              child: LinearPercentIndicator(
+                lineHeight: 18.0,
+                percent: _step / _totSteps,
+                center: Text('Step $_step out of $_totSteps',
+                    style: TextStyle(fontSize: 12.0)),
+                barRadius: Radius.circular(50),
+                backgroundColor: Theme.of(context)
+                    .colorScheme
+                    .primaryContainer
+                    .withOpacity(0.3),
+                progressColor: Theme.of(context).colorScheme.primaryContainer,
+                curve: Curves.easeInCirc,
+                animateFromLastPercent: true,
+              ),
             ),
           ),
           Padding(padding: EdgeInsets.only(top: 30)),
@@ -196,7 +203,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () {
-                      gotoStep(_step+1);
+                      gotoStep(_step + 1);
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
