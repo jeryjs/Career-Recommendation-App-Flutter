@@ -1,7 +1,14 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields, deprecated_member_use
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
+import 'question_data.dart';
+
+// Define a StatefulWidget as it maintains state that can change over time
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
 
@@ -10,223 +17,145 @@ class QuestionScreen extends StatefulWidget {
 }
 
 class _QuestionScreenState extends State<QuestionScreen> {
-  int _step = 1;
-  late int _totSteps = _qnTitles.length;
-  List<String> _qnTitles = [
-    "Your interests",
-    "Your personality",
-    'Your skills',
-    'Your goals',
-  ];
-  List<List<String>> _opts = [
-    [
-      "Sports",
-      "Music",
-      "Art",
-      "Dance",
-      "Reading",
-      "Coding",
-      "Gardening",
-      "Cooking",
-      "Photography",
-      "Traveling",
-      "Writing",
-      "Yoga",
-      "Gaming",
-      "Hiking",
-      "Fishing",
-      "Painting",
-      "Singing",
-      "Swimming",
-      "Knitting",
-      "Chess"
-    ],
-    [
-      "Outgoing",
-      "Friendly",
-      "Creative",
-      "Analytical",
-      "Persistent",
-      "Flexible",
-      "Patient",
-      "Responsible",
-      "Independent",
-      "Organized",
-      "Detail-oriented",
-      "Adventurous",
-      "Calm",
-      "Enthusiastic",
-      "Ambitious",
-      "Curious",
-      "Empathetic",
-      "Assertive",
-      "Humorous",
-      "Imaginative"
-    ],
-    [
-      "Programming",
-      "Designing",
-      "Testing",
-      "Debugging",
-      "Problem Solving",
-      "Communication",
-      "Project Management",
-      "Data Analysis",
-      "Creativity",
-      "Leadership",
-      "Time Management",
-      "Collaboration",
-      "Adaptability",
-      "Decision Making",
-      "Critical Thinking",
-      "Networking",
-      "Negotiation",
-      "Conflict Resolution",
-      "Customer Service",
-      "Technical Writing"
-    ],
-    [
-      "Get fit",
-      "Volunteer",
-      "Buy a house",
-      "Travel more",
-      "Write a book",
-      "Change careers",
-      "Run a marathon",
-      "Get a promotion",
-      "Start a business",
-      "Learn a new skill",
-      "Improve creativity",
-      "Save for retirement",
-      "Learn a new language",
-      "Improve communication",
-      "Improve problem solving",
-      "Improve time management",
-      "Improve technical skills",
-      "Improve work-life balance",
-      "Improve leadership skills",
-      "Spend more time with family and friends"
-    ],
-    [''],
-  ];
-  late List<bool> _selectedOpts;
+  // Initialize variables
+  int _index = 0, _step = 1;
+  late int _totSteps;
+  late QuestionData qns, ans;
 
-  gotoStep(int i) {
+  // Function to load JSON data
+  Future<QuestionData> loadJsonData(String path) async {
+    String jsonString = await rootBundle.loadString(path);
+    Map<String, dynamic> jsonData = jsonDecode(jsonString);
+    return QuestionData.fromJson(jsonData);
+  }
+
+  // Function to navigate to a specific step
+  void gotoStep(int i) {
     setState(() {
+      i <= 0 ? i = 1 : i;
+      i > _totSteps ? i = _totSteps : i;
       _step = i;
-      _selectedOpts =
-          List<bool>.generate(_opts[_step - 1].length, (index) => false);
+      _index = i - 1;
+      ans.titles[_index] = qns.titles[_index];
+      ans.options[_index].map((e) => null);
     });
   }
 
+  // Initialize state
   @override
   void initState() {
     super.initState();
-    _selectedOpts =
-        List<bool>.generate(_opts[_step - 1].length, (index) => false);
+    loadJsonData('assets/data/questions.json').then((data) {
+      setState(() {
+        qns = data;
+        _totSteps = qns.titles.length;
+        ans = QuestionData(
+            titles: List.from(qns.titles),
+            options: qns.options.map((o) => o.map((e) => '').toList()).toList()
+          );
+        ans.options[_index].map((e) => '');
+      });
+    });
   }
 
+  // Build the UI
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(2),
-      child: Column(
-        children: [
-          // Text('Step $_step out of $_totSteps'),
-          LinearPercentIndicator(
-            lineHeight: 18.0,
-            percent: _step / _totSteps,
-            center: Text('Step $_step out of $_totSteps', style: TextStyle(fontSize: 12.0)),
-            trailing: Icon(Icons.mood, color: Theme.of(context).colorScheme.primary.withAlpha((_step/_totSteps*255).round())),
-            barRadius: Radius.circular(50),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-            progressColor: Theme.of(context).colorScheme.primaryContainer,
-            curve: Curves.easeInCirc,
-            animateFromLastPercent: true,
-          ),
-          SliderTheme(
-            data: SliderThemeData(
-              trackHeight: 2,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+    final screenSize = MediaQuery.of(context).size;
+
+    return Scaffold(
+      body: Container(
+        margin: EdgeInsets.all(2),
+        child: Column(
+          children: [
+            // Progress indicator
+            LinearPercentIndicator(
+              lineHeight: 18.0,
+              percent: _step / _totSteps,
+              center: Text('Step $_step out of $_totSteps', style: TextStyle(fontSize: 12.0)),
+              leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => gotoStep(--_step)),
+              trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () => gotoStep(++_step)),
+              barRadius: Radius.circular(50),
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+              progressColor: Theme.of(context).colorScheme.primaryContainer,
+              curve: Curves.easeInCirc,
+              animateFromLastPercent: true,
             ),
-            child: Slider(
-              value: _step / _totSteps,
-              onChanged: (double value) {
-                gotoStep(
-                    ((value * _totSteps).toInt() > 0)
-                    ? (value * _totSteps).toInt()
-                    : 1
-                  );
-              },
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_qnTitles[_step - 1], style: TextStyle(fontSize: 28)),
-              Text('Pick what describe you best~',
-                  style: Theme.of(context).textTheme.titleSmall),
-              Padding(padding: EdgeInsets.only(top: 50)),
-              Stack(clipBehavior: Clip.none, children: <Widget>[
+            Padding(padding: EdgeInsets.only(top: 20)),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: min(560, screenSize.width * 0.9),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(qns.titles[_index], style: TextStyle(fontSize: 26)),
+                          Text('Pick what describe you best~', style: TextStyle(fontSize: 14)),
+                        ],
+                      )),
+                      Image.asset('assets/images/andy_2.gif', width: 70)
+                    ],
+                  ),
+                ),
+                Padding(padding: EdgeInsets.only(top: 40)),
+
+                // Card for displaying options
                 Card(
                   child: Container(
                     alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width * 0.9,
+                    width: min(560, screenSize.width * 0.9),
+                    height: screenSize.height * 0.45,
                     padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      alignment: WrapAlignment.spaceEvenly,
-                      spacing: 6.0,
-                      runSpacing: 6.0,
-                      children:
-                          List<Widget>.generate(_opts[_step - 1].length, (i) {
+                    child: SingleChildScrollView(child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: screenSize.width < 560 ? 8.0 : 26.0,
+                      runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
+                      children: List<Widget>.generate(qns.options[_index].length, (i) {
                         return FilterChip(
-                          label: Text(_opts[_step - 1][i]),
-                          selected: _selectedOpts[i],
-                          onSelected: (s) =>
-                              setState(() => _selectedOpts[i] = s),
+                          label: Text(qns.options[_index][i]),
+                          selected: ans.options[_index][i] == '' ? false : true,
+                          onSelected: (s) {
+                            setState(() {
+                              ans.options[_index][i] = ans.options[_index][i] == '' ? qns.options[_index][i] : '';
+                            });
+                          },
                         );
                       }),
-                    ),
+                    )),
                   ),
                 ),
-                Positioned(
-                  top: -125,
-                  right: -10,
-                  child: Image.asset('assets/images/andy_2.gif', width: 80),
-                ),
-              ]),
-            ],
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 46, horizontal: 16),
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () {
-                      gotoStep(_step + 1);
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Theme.of(context).colorScheme.primaryContainer,
-                      ),
-                      padding: MaterialStateProperty.all<EdgeInsets>(
-                        EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                    child: Text('Submit', style: TextStyle(fontSize: 20))),
-              ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      // Submit button
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(vertical: 46, horizontal: 16),
+        width: double.infinity,
+        child: ElevatedButton(
+            onPressed: () {
+              if (_step == _totSteps) {
+                debugPrint('Submit: ${ans.toJson()}');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
+                    duration: Duration(seconds: 5),
+                  ),
+                );
+              }
+              gotoStep(++_step);
+            },
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primaryContainer),
+              padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(vertical: 16)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            ),
+            child: Text('Submit', style: TextStyle(fontSize: 20))),
       ),
     );
   }

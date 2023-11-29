@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:math';
+
 import 'package:ashiq/question_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +14,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -20,11 +24,21 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: Scaffold(
+        backgroundColor: ColorScheme.fromSeed(seedColor: Colors.greenAccent).onPrimaryContainer.withOpacity(0.3),
         appBar: AppBar(
           title: Text('Course Rec!'),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.black,
         ),
-        body: QuestionScreen(),
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            width: min(720, screenSize.width),
+            child: QuestionScreen(),
+          ),
+        ),
       ),
     );
   }

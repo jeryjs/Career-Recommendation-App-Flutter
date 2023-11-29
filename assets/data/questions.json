@@ -1,0 +1,138 @@
+{
+    "titles": [
+      "Your primary interests?",
+      "Skills to improve or learn?",
+      "Your expertise level?",
+      "Long-term goals?",
+      "Preferred learning style?",
+      "Weekly learning hours?",
+      "Course type preference?",
+      "Need certification?",
+      "Preferred instruction language?",
+      "Preferred learning environment?"
+    ],
+    "options": [
+      [
+        "Arts",
+        "Sciences",
+        "Business",
+        "Tech",
+        "Health",
+        "Social",
+        "Education",
+        "Engineering",
+        "Law",
+        "Agriculture",
+        "Music",
+        "Design",
+        "Photography",
+        "Sports",
+        "Literature",
+        "Philosophy",
+        "Psychology",
+        "Economics",
+        "History",
+        "Politics",
+        "Environment",
+        "Religion",
+        "Culture"
+      ],
+      [
+        "Coding",
+        "Writing",
+        "Speaking",
+        "Leadership",
+        "Data",
+        "Design",
+        "Project Mgmt",
+        "Research",
+        "Sales",
+        "Marketing",
+        "Photography",
+        "Music",
+        "Sports Coaching",
+        "Art",
+        "Literature",
+        "Philosophy",
+        "Psychology",
+        "Economics",
+        "History",
+        "Politics",
+        "Environment",
+        "Culture"
+      ],
+      [
+        "Beginner",
+        "Intermediate",
+        "Advanced",
+        "Expert"
+      ],
+      [
+        "Academia",
+        "Industry",
+        "Entrepreneurship",
+        "Freelancing",
+        "Public Service",
+        "Non-profit",
+        "Consulting",
+        "Retirement",
+        "Career Change",
+        "Personal Growth",
+        "Hobby",
+        "Sports",
+        "Artistic Pursuit"
+      ],
+      [
+        "Self-paced",
+        "Structured",
+        "Mixed",
+        "Mentor-guided",
+        "Community-driven",
+        "Project-based"
+      ],
+      [
+        "<2 hours",
+        "2-5 hours",
+        "5-10 hours",
+        ">10 hours",
+        "Flexible",
+        "As needed"
+      ],
+      [
+        "Theory-based",
+        "Practical",
+        "Mixed",
+        "Case Study",
+        "Simulation",
+        "Project-based"
+      ],
+      [
+        "Yes",
+        "No",
+        "Not important",
+        "Depends",
+        "Course-specific"
+      ],
+      [
+        "English",
+        "Spanish",
+        "French",
+        "German",
+        "Mandarin",
+        "Other",
+        "Multilingual",
+        "Depends",
+        "Course-specific"
+      ],
+      [
+        "Online",
+        "Classroom",
+        "Hybrid",
+        "Field",
+        "Workshop",
+        "Self-study",
+        "Group Study"
+      ]
+    ]
+  }
+  

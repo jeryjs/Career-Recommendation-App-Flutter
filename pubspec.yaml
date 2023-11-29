@@ -10,7 +10,6 @@ dependencies:
   percent_indicator : ^4.2.3
   flutter:
     sdk: flutter
-  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:
@@ -21,4 +20,6 @@ flutter:
   uses-material-design: true
  
   assets:
+    - assets/
+    - assets/data/
     - assets/images/
