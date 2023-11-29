@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_final_fields
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -86,25 +86,25 @@ class _QuestionScreenState extends State<QuestionScreen> {
       "Technical Writing"
     ],
     [
+      "Get fit",
+      "Volunteer",
+      "Buy a house",
+      "Travel more",
+      "Write a book",
+      "Change careers",
+      "Run a marathon",
+      "Get a promotion",
       "Start a business",
       "Learn a new skill",
-      "Get a promotion",
-      "Change careers",
-      "Improve leadership skills",
+      "Improve creativity",
+      "Save for retirement",
+      "Learn a new language",
       "Improve communication",
       "Improve problem solving",
-      "Improve technical skills",
-      "Improve creativity",
       "Improve time management",
+      "Improve technical skills",
       "Improve work-life balance",
-      "Travel more",
-      "Volunteer",
-      "Learn a new language",
-      "Write a book",
-      "Run a marathon",
-      "Buy a house",
-      "Save for retirement",
-      "Get fit",
+      "Improve leadership skills",
       "Spend more time with family and friends"
     ],
     [''],
@@ -208,7 +208,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () {
-                      gotoStep(_step+1);
+                      gotoStep(_step + 1);
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
