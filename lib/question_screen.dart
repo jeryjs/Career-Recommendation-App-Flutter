@@ -19,7 +19,7 @@ class QuestionScreen extends StatefulWidget {
 class _QuestionScreenState extends State<QuestionScreen> {
   // Initialize variables
   int _index = 0, _step = 1;
-  late int _totSteps;
+  late int _totSteps = 10;
   late QuestionData qns, ans;
 
   // Function to load JSON data
@@ -51,8 +51,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
         _totSteps = qns.titles.length;
         ans = QuestionData(
             titles: List.from(qns.titles),
-            options: qns.options.map((o) => o.map((e) => '').toList()).toList()
-          );
+            options:
+                qns.options.map((o) => o.map((e) => '').toList()).toList());
         ans.options[_index].map((e) => '');
       });
     });
@@ -72,11 +72,19 @@ class _QuestionScreenState extends State<QuestionScreen> {
             LinearPercentIndicator(
               lineHeight: 18.0,
               percent: _step / _totSteps,
-              center: Text('Step $_step out of $_totSteps', style: TextStyle(fontSize: 12.0)),
-              leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => gotoStep(--_step)),
-              trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () => gotoStep(++_step)),
+              center: Text('Step $_step out of $_totSteps',
+                  style: TextStyle(fontSize: 12.0)),
+              leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => gotoStep(--_step)),
+              trailing: IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: () => gotoStep(++_step)),
               barRadius: Radius.circular(50),
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+              backgroundColor: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withOpacity(0.3),
               progressColor: Theme.of(context).colorScheme.primaryContainer,
               curve: Curves.easeInCirc,
               animateFromLastPercent: true,
@@ -90,11 +98,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(child: Column(
+                      Flexible(
+                          child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(qns.titles[_index], style: TextStyle(fontSize: 26)),
-                          Text('Pick what describe you best~', style: TextStyle(fontSize: 14)),
+                          Text(qns.titles[_index],
+                              style: TextStyle(fontSize: 26)),
+                          Text('Pick what describe you best~',
+                              style: TextStyle(fontSize: 14)),
                         ],
                       )),
                       Image.asset('assets/images/andy_2.gif', width: 70)
@@ -110,17 +121,22 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     width: min(560, screenSize.width * 0.9),
                     height: screenSize.height * 0.45,
                     padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(child: Wrap(
+                    child: SingleChildScrollView(
+                        child: Wrap(
                       alignment: WrapAlignment.center,
                       spacing: screenSize.width < 560 ? 8.0 : 26.0,
                       runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
-                      children: List<Widget>.generate(qns.options[_index].length, (i) {
+                      children: List<Widget>.generate(
+                          qns.options[_index].length, (i) {
                         return FilterChip(
                           label: Text(qns.options[_index][i]),
                           selected: ans.options[_index][i] == '' ? false : true,
                           onSelected: (s) {
                             setState(() {
-                              ans.options[_index][i] = ans.options[_index][i] == '' ? qns.options[_index][i] : '';
+                              ans.options[_index][i] =
+                                  ans.options[_index][i] == ''
+                                      ? qns.options[_index][i]
+                                      : '';
                             });
                           },
                         );
@@ -139,11 +155,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
         width: double.infinity,
         child: ElevatedButton(
             onPressed: () {
+              if (ans.options[_index]
+                  .where((o) => o.isNotEmpty)
+                  .toList()
+                  .isEmpty) return;
               if (_step == _totSteps) {
                 debugPrint('Submit: ${ans.toJson()}');
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text("Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
+                    content: Text(
+                        "Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
                     duration: Duration(seconds: 5),
                   ),
                 );
@@ -151,9 +172,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
               gotoStep(++_step);
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primaryContainer),
-              padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(vertical: 16)),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              backgroundColor: MaterialStateProperty.all<Color>(
+                  Theme.of(context).colorScheme.primaryContainer),
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                  EdgeInsets.symmetric(vertical: 16)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8))),
             ),
             child: Text('Submit', style: TextStyle(fontSize: 20))),
       ),
