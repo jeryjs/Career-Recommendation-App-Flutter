@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({super.key});
@@ -131,7 +132,18 @@ class _QuestionScreenState extends State<QuestionScreen> {
       margin: EdgeInsets.all(2),
       child: Column(
         children: [
-          Text('Step $_step out of $_totSteps'),
+          // Text('Step $_step out of $_totSteps'),
+          LinearPercentIndicator(
+            lineHeight: 18.0,
+            percent: _step / _totSteps,
+            center: Text('Step $_step out of $_totSteps', style: TextStyle(fontSize: 12.0)),
+            trailing: Icon(Icons.mood, color: Theme.of(context).colorScheme.primary.withAlpha((_step/_totSteps*255).round())),
+            barRadius: Radius.circular(50),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+            progressColor: Theme.of(context).colorScheme.primaryContainer,
+            curve: Curves.easeInCirc,
+            animateFromLastPercent: true,
+          ),
           SliderTheme(
             data: SliderThemeData(
               trackHeight: 2,
