@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:ashiq/question_screen.dart';
+import 'package:ashiq/result_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -24,7 +25,9 @@ class MainApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: Scaffold(
-        backgroundColor: ColorScheme.fromSeed(seedColor: Colors.greenAccent).onPrimaryContainer.withOpacity(0.3),
+        backgroundColor: ColorScheme.fromSeed(seedColor: Colors.greenAccent)
+            .onPrimaryContainer
+            .withOpacity(0.3),
         appBar: AppBar(
           title: Text('Course Rec!'),
           backgroundColor: Colors.black,
