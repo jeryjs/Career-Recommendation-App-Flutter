@@ -16,7 +16,8 @@ class QuestionData {
     // Extract options from JSON data
     var optionsFromJson = jsonData['options'];
     // Convert options to a list of lists
-    List<List<String>> optionsList = List<List<String>>.from(optionsFromJson.map((i) => List<String>.from(i)));
+    List<List<String>> optionsList = List<List<String>>.from(
+        optionsFromJson.map((i) => List<String>.from(i)));
 
     // Return an instance of the class
     return QuestionData(
@@ -31,7 +32,8 @@ class QuestionData {
     // Iterate over the titles and options
     for (int i = 0; i < titles.length; i++) {
       // Add each title and its corresponding options to the map
-      json[titles[i]] = options[i].where((option) => option.isNotEmpty).toList();
+      json[titles[i]] =
+          options[i].where((option) => option.isNotEmpty).toList();
     }
     // Convert the map to a JSON string
     return jsonEncode(json);

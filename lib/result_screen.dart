@@ -1,20 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class LoadingPage extends StatelessWidget {
-  const LoadingPage({Key? key}) : super(key: key);
+class ResultScreen extends StatefulWidget {
+  @override
+  _ResultScreenState createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends State<ResultScreen> {
+  bool isLoading = false;
+
+  void _handleSubmit() {
+    // Perform any necessary operations before showing the loading state
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Simulate an asynchronous operation
+    Future.delayed(Duration(seconds: 3), () {
+      // Perform any necessary operations after the loading state is complete
+
+      setState(() {
+        isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 227, 227, 227),
+      appBar: AppBar(
+        title: Text('Result Screen'),
+      ),
       body: Center(
-        child: SpinKitSquareCircle(
-          itemBuilder: (context, index) => Image.network(
-              fit: BoxFit.cover,
-              'https://dm0qx8t0i9gc9.cloudfront.net/thumbnails/video/VCHXZQKsxil3lhgr4/videoblocks-loading-circle-icon-background_hzgpttyxpm_thumbnail-1080_01.png'),
-          size: 70,
-          color: Colors.blue,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: _handleSubmit,
+              child: Text('Submit'),
+            ),
+            Visibility(
+              visible: isLoading,
+              child: LinearProgressIndicator(),
+            ),
+          ],
         ),
       ),
     );
