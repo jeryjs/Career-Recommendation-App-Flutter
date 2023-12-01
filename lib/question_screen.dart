@@ -31,9 +31,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   // Function to navigate to a specific step
   void gotoStep(int i) {
+    i = i <= 0 ? 1 : i;   // prevent negative step
+    i = i > _totSteps ? _totSteps : i;  // prevent overflow
     setState(() {
-      i <= 0 ? i = 1 : i;
-      i > _totSteps ? i = _totSteps : i;
       _step = i;
       _index = i - 1;
       ans.titles[_index] = qns.titles[_index];
@@ -51,8 +51,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
         _totSteps = qns.titles.length;
         ans = QuestionData(
             titles: List.from(qns.titles),
-            options:
-                qns.options.map((o) => o.map((e) => '').toList()).toList());
+            options: qns.options.map((o) => o.map((e) => '').toList()).toList()
+          );
         ans.options[_index].map((e) => '');
       });
     });
