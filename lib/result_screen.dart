@@ -1,9 +1,8 @@
 // ignore_for_file: unnecessary_string_escapes, prefer_const_constructors
 
-import 'dart:io';
-
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'question_data.dart';
 
@@ -26,7 +25,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Future<ResultData> fetchResult() async {
-    OpenAI.apiKey = Platform.environment['OPENAI_API_KEY']!;
+    OpenAI.apiKey = await rootBundle.loadString('assets/api.key');
     OpenAI.showLogs = true;
     OpenAI.showResponsesLogs = true;
 
@@ -39,7 +38,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 You recommend 5 courses based on input json and provide a very enthusiastic and short reasoning for each course in 5-10 words.
                 The output should be in this format:
                 [\"course1name\": \"reasoning1\", \"course2name\": \"reasoning2\",....]
-                Here\"s an example output format for u to use to base ur reply on-
+                Here's an example output format for u to use to base ur reply on-
                 [\"Flutter Programmer\": \"I bet there\"s no better place to improve your programming skills!!\", \"Design Architect\": \"Let your imagination flow into the world around you!!\",....]
               """)
         ],
