@@ -36,22 +36,24 @@ class _ResultScreenState extends State<ResultScreen> {
           OpenAIChatCompletionChoiceMessageContentItemModel.text("""
                 You are a super thoughtful course recommender for grade 10-12 students.
                 You read data given to you in json format and ONLY reply in json format.
-                You recommend 3 courses based on input json and provide a very enthusiastic and short reasoning for each course in 5-10 words.
+                You recommend 5 courses based on input json and provide a very enthusiastic and short reasoning for each course in 5-10 words.
                 The output should be in this format:
                 [\"course1name\": \"reasoning1\", \"course2name\": \"reasoning2\",....]
                 Here\"s an example output format for u to use to base ur reply on-
                 [\"Flutter Programmer\": \"I bet there\"s no better place to improve your programming skills!!\", \"Design Architect\": \"Let your imagination flow into the world around you!!\",....]
               """)
-        ]);
+        ],
+      );
 
     final userMessage = OpenAIChatCompletionChoiceMessageModel(
         role: OpenAIChatMessageRole.user,
         content: [
           OpenAIChatCompletionChoiceMessageContentItemModel.text("""
-                HERE IS THE USER'S ANSWERS:
-                ${widget.answers.toJson()}
-              """)
-        ]);
+              HERE IS THE USER'S ANSWERS:
+              ${widget.answers.toJson()}
+            """)
+        ],
+      );
 
     final completion = await OpenAI.instance.chat.create(
       model: 'gpt-3.5-turbo',
@@ -59,8 +61,8 @@ class _ResultScreenState extends State<ResultScreen> {
         systemMessage,
         userMessage,
       ],
-      maxTokens: 480,
-      temperature: 0.5,
+      maxTokens: 500,
+      temperature: 0.2,
     );
 
     if (completion.choices.isNotEmpty) {
@@ -88,46 +90,33 @@ class _ResultScreenState extends State<ResultScreen> {
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: snapshot.data?.result.length,
-                      itemBuilder: (context, index) {
-                        final entry =
-                            snapshot.data?.result.entries.elementAt(index);
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0)),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    clrSchm.inversePrimary,
-                                    clrSchm.secondaryContainer,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 25, vertical: 20),
-                                title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
-                              ),
-                            ),
+              return ListView.builder(
+                itemCount: snapshot.data?.result.length,
+                itemBuilder: (context, index) {
+                  final entry = snapshot.data?.result.entries.elementAt(index);
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        );
-                      },
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                          title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  );
+                },
               );
             }
           },
@@ -143,19 +132,14 @@ class ResultData {
   ResultData({required this.result});
 
   factory ResultData.fromJson(String jsonString) {
-    jsonString = jsonString.substring(
-        1, jsonString.length - 1); // Remove the outer brackets
-    List<String> entries =
-        jsonString.split('", "'); // Split the string into entries
+    jsonString = jsonString.substring(1, jsonString.length - 1); // Remove the outer brackets
+    List<String> entries = jsonString.split('", "'); // Split the string into entries
     Map<String, String> resultMap = {};
 
     for (var entry in entries) {
-      List<String> parts =
-          entry.split(': '); // Split the entry into key and value
-      String key =
-          parts[0].replaceAll('"', ''); // Remove the quotes around the key
-      String value =
-          parts[1].replaceAll('"', ''); // Remove the quotes around the value
+      List<String> parts = entry.split(': '); // Split the entry into key and value
+      String key = parts[0].replaceAll('"', ''); // Remove the quotes around the key
+      String value = parts[1].replaceAll('"', ''); // Remove the quotes around the value
       resultMap[key] = value;
     }
 
