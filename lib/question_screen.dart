@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:ashiq/result_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -155,19 +156,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
         width: double.infinity,
         child: ElevatedButton(
             onPressed: () {
-              if (ans.options[_index]
-                  .where((o) => o.isNotEmpty)
-                  .toList()
-                  .isEmpty) return;
+              if (ans.options[_index].where((o) => o.isNotEmpty).toList().isEmpty) return;
               if (_step == _totSteps) {
                 debugPrint('Submit: ${ans.toJson()}');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        "Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
-                    duration: Duration(seconds: 5),
-                  ),
-                );
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   SnackBar(
+                //     content: Text("Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
+                //     duration: Duration(seconds: 5),
+                //   ),
+                // );
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ResultScreen(answers: ans)));
               }
               gotoStep(++_step);
             },

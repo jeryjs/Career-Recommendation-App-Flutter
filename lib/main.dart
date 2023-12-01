@@ -3,7 +3,6 @@
 import 'dart:math';
 
 import 'package:ashiq/question_screen.dart';
-import 'package:ashiq/result_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
