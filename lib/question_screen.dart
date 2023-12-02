@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields, deprecated_member_use
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ashiq/result_screen.dart';
@@ -120,7 +121,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     width: min(560, screenSize.width * 0.9),
-                    height: max(60, 0.9582 * screenSize.height - 410),  //using formula y=mx+c (slope intercept)
+                    height: Platform.isAndroid || Platform.isIOS
+                        ? screenSize.height * 0.45
+                        : max(60, 0.9582 * screenSize.height - 410),  //using formula y=mx+c (slope intercept)
                     padding: const EdgeInsets.all(8.0),
                     child: SingleChildScrollView(child: Wrap(
                       alignment: WrapAlignment.center,
