@@ -44,3 +44,4 @@ app.*.map.json
 assets/api.key
 assets/bard.key
 assets/gpt.key
+assets/openai.key

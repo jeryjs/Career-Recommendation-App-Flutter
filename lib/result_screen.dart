@@ -36,7 +36,7 @@ class _ResultScreenState extends State<ResultScreen> {
       Here's an example output format for u to use to base ur reply on-
       {\"Flutter Programmer\": \"I bet there\"s no better place to improve your programming skills!!\", \"Design Architect\": \"Let your imagination flow into the world around you!!\",....}
     """;
-   userString = """
+    userString = """
       HERE IS THE USER'S ANSWERS:
       ${widget.answers.toJson()}
     """;
@@ -45,21 +45,23 @@ class _ResultScreenState extends State<ResultScreen> {
     futureResult = fetchResultFromBard();
   }
 
-  
-
   Future<ResultData> fetchResultFromGPT() async {
-    OpenAI.apiKey = await rootBundle.loadString('assets/gpt.key');
+    OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
     OpenAI.showLogs = true;
     OpenAI.showResponsesLogs = true;
 
     final systemMessage = OpenAIChatCompletionChoiceMessageModel(
-        role: OpenAIChatMessageRole.system,
-        content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)],
-      );
+      role: OpenAIChatMessageRole.system,
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)
+      ],
+    );
     final userMessage = OpenAIChatCompletionChoiceMessageModel(
-        role: OpenAIChatMessageRole.user,
-        content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)],
-      );
+      role: OpenAIChatMessageRole.user,
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)
+      ],
+    );
 
     final completion = await OpenAI.instance.chat.create(
       model: 'gpt-3.5-turbo',
@@ -69,7 +71,8 @@ class _ResultScreenState extends State<ResultScreen> {
     );
 
     if (completion.choices.isNotEmpty) {
-      return ResultData.fromJson(completion.choices.first.message.content!.first.text.toString());
+      return ResultData.fromJson(
+          completion.choices.first.message.content!.first.text.toString());
     } else {
       throw Exception('Failed to load result');
     }
@@ -77,7 +80,8 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<ResultData> fetchResultFromBard() async {
     final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint = "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
+    final endpoint =
+        "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
     final response = await http.post(
       Uri.parse(endpoint),
       headers: {'Content-Type': 'application/json'},
@@ -122,11 +126,15 @@ class _ResultScreenState extends State<ResultScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                       elevation: 5,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0)),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                            colors: [
+                              clrSchm.inversePrimary,
+                              clrSchm.secondaryContainer
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -134,13 +142,20 @@ class _ResultScreenState extends State<ResultScreen> {
                         ),
                         child: InkWell(
                           onTap: () async {
-                            final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
+                            final url =
+                                'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
                             await launchUrlString(url);
                           },
                           child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                            title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 20),
+                            title: Text(entry!.key,
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold)),
+                            subtitle: Text(entry.value,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                )),
                           ),
                         ),
                       ),
