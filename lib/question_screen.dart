@@ -120,10 +120,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   child: Container(
                     alignment: Alignment.center,
                     width: min(560, screenSize.width * 0.9),
-                    height: screenSize.height * 0.45,
+                    height: max(60, 0.9582 * screenSize.height - 410),  //using formula y=mx+c (slope intercept)
                     padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(
-                        child: Wrap(
+                    child: SingleChildScrollView(child: Wrap(
                       alignment: WrapAlignment.center,
                       spacing: screenSize.width < 560 ? 8.0 : 26.0,
                       runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
@@ -134,10 +133,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           selected: ans.options[_index][i] == '' ? false : true,
                           onSelected: (s) {
                             setState(() {
-                              ans.options[_index][i] =
-                                  ans.options[_index][i] == ''
-                                      ? qns.options[_index][i]
-                                      : '';
+                              ans.options[_index][i] = ans.options[_index][i] == '' ? qns.options[_index][i] : '';
                             });
                           },
                         );

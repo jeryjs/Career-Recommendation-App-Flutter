@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   percent_indicator : ^4.2.3
   dart_openai: ^5.0.0
+  http: ^1.1.2
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:
