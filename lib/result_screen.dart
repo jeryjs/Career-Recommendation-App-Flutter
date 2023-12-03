@@ -112,10 +112,11 @@ class _ResultScreenState extends State<ResultScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SpinKitFadingCircle(
+                size: 120,
                 itemBuilder: (BuildContext context, int index) {
                   return DecoratedBox(
                     decoration: BoxDecoration(
-                      color: index.isEven ? Colors.red : Colors.green,
+                      color: index.isEven ? clrSchm.inversePrimary : clrSchm.onPrimary,
                     ),
                   );
                 },
