@@ -116,17 +116,24 @@ class _ResultScreenState extends State<ResultScreen> {
           future: futureResult,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return SpinKitFadingCircle(
-                size: 120,
-                itemBuilder: (BuildContext context, int index) {
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: index.isEven
-                          ? clrSchm.inversePrimary
-                          : clrSchm.onPrimary,
-                    ),
-                  );
-                },
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SpinKitFadingCircle(
+                    size: 120,
+                    itemBuilder: (BuildContext context, int index) {
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: index.isEven
+                              ? clrSchm.inversePrimary
+                              : clrSchm.onPrimary,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Well... Well... that\'s interesting!'),
+                ],
               );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
