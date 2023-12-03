@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'question_data.dart';
+import 'chat_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   final QuestionData answers;
@@ -37,7 +38,7 @@ class _ResultScreenState extends State<ResultScreen> {
       Here's an example output format for u to use to base ur reply on-
       {\"Flutter Programmer\": \"I bet there\"s no better place to improve your programming skills!!\", \"Design Architect\": \"Let your imagination flow into the world around you!!\",....}
     """;
-   userString = """
+    userString = """
       HERE IS THE USER'S ANSWERS:
       ${widget.answers.toJson()}
     """;
@@ -54,13 +55,13 @@ class _ResultScreenState extends State<ResultScreen> {
     OpenAI.showResponsesLogs = true;
 
     final systemMessage = OpenAIChatCompletionChoiceMessageModel(
-        role: OpenAIChatMessageRole.system,
-        content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)],
-      );
+      role: OpenAIChatMessageRole.system,
+      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)],
+    );
     final userMessage = OpenAIChatCompletionChoiceMessageModel(
-        role: OpenAIChatMessageRole.user,
-        content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)],
-      );
+      role: OpenAIChatMessageRole.user,
+      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)],
+    );
 
     final completion = await OpenAI.instance.chat.create(
       model: 'gpt-3.5-turbo',
@@ -111,15 +112,22 @@ class _ResultScreenState extends State<ResultScreen> {
           future: futureResult,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return SpinKitFadingCircle(
-                size: 120,
-                itemBuilder: (BuildContext context, int index) {
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: index.isEven ? clrSchm.inversePrimary : clrSchm.onPrimary,
-                    ),
-                  );
-                },
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SpinKitFadingCircle(
+                    size: 120,
+                    itemBuilder: (BuildContext context, int index) {
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: index.isEven ? clrSchm.inversePrimary : clrSchm.onPrimary,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Cooking up some recommendations for you~!'),
+                ],
               );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
@@ -129,29 +137,30 @@ class _ResultScreenState extends State<ResultScreen> {
                 itemBuilder: (context, index) {
                   final entry = snapshot.data?.result.entries.elementAt(index);
                   return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Card(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: InkWell(
-                          onTap: () async {
-                            final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
-                            await launchUrlString(url);
-                          },
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                            title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
-                          ),
+                          child: InkWell(
+                            onTap: () {
+                              // final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
+                              // await launchUrlString(url);
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key)));
+                            },
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                              title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                              subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                                                      ),
                         ),
                       ),
                     ),
@@ -172,17 +181,6 @@ class ResultData {
   ResultData({required this.result});
 
   factory ResultData.fromJson(String jsonString) {
-    // jsonString = jsonString.substring(1, jsonString.length - 1); // Remove the outer brackets
-    // List<String> entries = jsonString.split('", "'); // Split the string into entries
-    // Map<String, String> resultMap = {};
-
-    // for (var entry in entries) {
-    //   List<String> parts = entry.split(': '); // Split the entry into key and value
-    //   String key = parts[0].replaceAll('"', ''); // Remove the quotes around the key
-    //   String value = parts[1].replaceAll('"', ''); // Remove the quotes around the value
-    //   resultMap[key] = value;
-    // }
-
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
     Map<String, String> resultMap = {};
 
