@@ -33,8 +33,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   // Function to navigate to a specific step
   void gotoStep(int i) {
-    i = i <= 0 ? 1 : i;   // prevent negative step
-    i = i > _totSteps ? _totSteps : i;  // prevent overflow
+    i = i <= 0 ? 1 : i; // prevent negative step
+    i = i > _totSteps ? _totSteps : i; // prevent overflow
     setState(() {
       _step = i;
       _index = i - 1;
@@ -53,8 +53,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
         _totSteps = qns.titles.length;
         ans = QuestionData(
             titles: List.from(qns.titles),
-            options: qns.options.map((o) => o.map((e) => '').toList()).toList()
-          );
+            options:
+                qns.options.map((o) => o.map((e) => '').toList()).toList());
         ans.options[_index].map((e) => '');
       });
     });
@@ -117,45 +117,67 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Padding(padding: EdgeInsets.only(top: 40)),
 
                 // Card for displaying options
-                Card(
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: min(560, screenSize.width * 0.9),
-                    height: Platform.isAndroid || Platform.isIOS
-                        ? screenSize.height * 0.45
-                        : max(60, 0.9582 * screenSize.height - 410),  //using formula y=mx+c (slope intercept)
-                    padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: screenSize.width < 560 ? 8.0 : 26.0,
-                      runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
-                      children: List<Widget>.generate(
-                          qns.options[_index].length, (i) {
-                        return FilterChip(
-                          label: Text(qns.options[_index][i]),
-                          selected: ans.options[_index][i] == '' ? false : true,
-                          onSelected: (s) {
-                            setState(() {
-                              ans.options[_index][i] = ans.options[_index][i] == '' ? qns.options[_index][i] : '';
-                            });
-                          },
-                        );
-                      }),
-                    )),
-                  ),
+                Padding(padding: EdgeInsets.only(top: 40)),
+                AnimatedSwitcher(
+                  // AnimatedSwitcher for smoother transitions
+                  duration: Duration(milliseconds: 300),
+                  child: _step == _totSteps
+                      ? SizedBox.shrink()
+                      : Card(
+                          key: ValueKey<int>(_index),
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: min(560, screenSize.width * 0.9),
+                            height: Platform.isAndroid || Platform.isIOS
+                                ? screenSize.height * 0.45
+                                : (0.9582 * screenSize.height - 410)
+                                    .clamp(0, screenSize.height),
+                            padding: const EdgeInsets.all(8.0),
+                            child: SingleChildScrollView(
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: screenSize.width < 560 ? 8.0 : 26.0,
+                                runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
+                                children: List<Widget>.generate(
+                                  qns.options[_index].length,
+                                  (i) {
+                                    return FilterChip(
+                                      label: Text(qns.options[_index][i]),
+                                      selected: ans.options[_index][i] == ''
+                                          ? false
+                                          : true,
+                                      onSelected: (s) {
+                                        setState(() {
+                                          ans.options[_index][i] =
+                                              ans.options[_index][i] == ''
+                                                  ? qns.options[_index][i]
+                                                  : '';
+                                        });
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
           ],
         ),
       ),
+
       // Submit button
       bottomNavigationBar: Container(
         margin: EdgeInsets.symmetric(vertical: 46, horizontal: 16),
         width: double.infinity,
         child: ElevatedButton(
             onPressed: () {
-              if (ans.options[_index].where((o) => o.isNotEmpty).toList().isEmpty) return;
+              if (ans.options[_index]
+                  .where((o) => o.isNotEmpty)
+                  .toList()
+                  .isEmpty) return;
               if (_step == _totSteps) {
                 debugPrint('Submit: ${ans.toJson()}');
                 // ScaffoldMessenger.of(context).showSnackBar(
@@ -164,7 +186,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 //     duration: Duration(seconds: 5),
                 //   ),
                 // );
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ResultScreen(answers: ans)));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ResultScreen(answers: ans)));
               }
               gotoStep(++_step);
             },
