@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,15 @@ class _ResultScreenState extends State<ResultScreen> {
           future: futureResult,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const LinearProgressIndicator();
+              return SpinKitFadingCircle(
+                itemBuilder: (BuildContext context, int index) {
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: index.isEven ? Colors.red : Colors.green,
+                    ),
+                  );
+                },
+              );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
