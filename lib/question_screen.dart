@@ -117,57 +117,50 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 Padding(padding: EdgeInsets.only(top: 40)),
 
                 // Card for displaying options
-                Padding(padding: EdgeInsets.only(top: 40)),
                 AnimatedSwitcher(
-                  // AnimatedSwitcher for smoother transitions
                   duration: Duration(milliseconds: 300),
-                  child: _step == _totSteps
-                      ? SizedBox.shrink()
-                      : Card(
-                          key: ValueKey<int>(_index),
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: min(560, screenSize.width * 0.9),
-                            height: Platform.isAndroid || Platform.isIOS
-                                ? screenSize.height * 0.45
-                                : (0.9582 * screenSize.height - 410)
-                                    .clamp(0, screenSize.height),
-                            padding: const EdgeInsets.all(8.0),
-                            child: SingleChildScrollView(
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: screenSize.width < 560 ? 8.0 : 26.0,
-                                runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
-                                children: List<Widget>.generate(
-                                  qns.options[_index].length,
-                                  (i) {
-                                    return FilterChip(
-                                      label: Text(qns.options[_index][i]),
-                                      selected: ans.options[_index][i] == ''
-                                          ? false
-                                          : true,
-                                      onSelected: (s) {
-                                        setState(() {
-                                          ans.options[_index][i] =
-                                              ans.options[_index][i] == ''
-                                                  ? qns.options[_index][i]
-                                                  : '';
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
+                  child: Card(
+                    key: ValueKey<int>(_index),
+                    child: Container(
+                      alignment: Alignment.center,
+                      width: min(560, screenSize.width * 0.9),
+                      height: Platform.isAndroid || Platform.isIOS
+                          ? screenSize.height * 0.45
+                          : max(60, 0.9582 * screenSize.height - 410), //using formula y=mx+c (slope intercept)
+                      padding: const EdgeInsets.all(8.0),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: screenSize.width < 560 ? 8.0 : 26.0,
+                          runSpacing: screenSize.width < 560 ? 8.0 : 26.0,
+                          children: List<Widget>.generate(
+                            qns.options[_index].length,
+                            (i) {
+                              return FilterChip(
+                                label: Text(qns.options[_index][i]),
+                                selected:
+                                    ans.options[_index][i] == '' ? false : true,
+                                onSelected: (s) {
+                                  setState(() {
+                                    ans.options[_index][i] =
+                                        ans.options[_index][i] == ''
+                                            ? qns.options[_index][i]
+                                            : '';
+                                  });
+                                },
+                              );
+                            },
                           ),
                         ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ],
         ),
       ),
-
       // Submit button
       bottomNavigationBar: Container(
         margin: EdgeInsets.symmetric(vertical: 46, horizontal: 16),

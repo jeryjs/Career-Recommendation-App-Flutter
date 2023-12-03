@@ -47,6 +47,8 @@ class _ResultScreenState extends State<ResultScreen> {
     futureResult = fetchResultFromBard();
   }
 
+  
+
   Future<ResultData> fetchResultFromGPT() async {
     OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
     OpenAI.showLogs = true;
@@ -54,15 +56,11 @@ class _ResultScreenState extends State<ResultScreen> {
 
     final systemMessage = OpenAIChatCompletionChoiceMessageModel(
       role: OpenAIChatMessageRole.system,
-      content: [
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)
-      ],
+      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)],
     );
     final userMessage = OpenAIChatCompletionChoiceMessageModel(
       role: OpenAIChatMessageRole.user,
-      content: [
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)
-      ],
+      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)],
     );
 
     final completion = await OpenAI.instance.chat.create(
@@ -73,8 +71,7 @@ class _ResultScreenState extends State<ResultScreen> {
     );
 
     if (completion.choices.isNotEmpty) {
-      return ResultData.fromJson(
-          completion.choices.first.message.content!.first.text.toString());
+      return ResultData.fromJson(completion.choices.first.message.content!.first.text.toString());
     } else {
       throw Exception('Failed to load result');
     }
@@ -82,8 +79,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<ResultData> fetchResultFromBard() async {
     final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint =
-        "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
+    final endpoint = "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
     final response = await http.post(
       Uri.parse(endpoint),
       headers: {'Content-Type': 'application/json'},
@@ -124,15 +120,13 @@ class _ResultScreenState extends State<ResultScreen> {
                     itemBuilder: (BuildContext context, int index) {
                       return DecoratedBox(
                         decoration: BoxDecoration(
-                          color: index.isEven
-                              ? clrSchm.inversePrimary
-                              : clrSchm.onPrimary,
+                          color: index.isEven ? clrSchm.inversePrimary : clrSchm.onPrimary,
                         ),
                       );
                     },
                   ),
                   const SizedBox(height: 10),
-                  const Text('Well... Well... that\'s interesting!'),
+                  const Text('Cooking up some recommendations for you~!'),
                 ],
               );
             } else if (snapshot.hasError) {
@@ -142,52 +136,31 @@ class _ResultScreenState extends State<ResultScreen> {
                 itemCount: snapshot.data?.result.length,
                 itemBuilder: (context, index) {
                   final entry = snapshot.data?.result.entries.elementAt(index);
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(course: entry!.key),
-                        ),
-                      );
-                    },
-                    child: Padding(
+                  return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Card(
                         elevation: 5,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
                         child: Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [
-                                clrSchm.inversePrimary,
-                                clrSchm.secondaryContainer
-                              ],
+                              colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(15.0),
                           ),
                           child: InkWell(
-                            onTap: () async {
-                              final url =
-                                  'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
-                              await launchUrlString(url);
+                            onTap: () {
+                              // final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
+                              // await launchUrlString(url);
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key)));
                             },
                             child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 20),
-                              title: Text(entry!.key,
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(entry.value,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  )),
-                            ),
-                          ),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                              title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                              subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                                                      ),
                         ),
                       ),
                     ),
