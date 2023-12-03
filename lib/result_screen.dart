@@ -114,44 +114,39 @@ class _ResultScreenState extends State<ResultScreen> {
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
-              return Column(
-                children: [
-                  Text("Here's Your Results!!"),
-                  ListView.builder(
-                    itemCount: snapshot.data?.result.length,
-                    itemBuilder: (context, index) {
-                      final entry = snapshot.data?.result.entries.elementAt(index);
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: InkWell(
-                              onTap: () async {
-                                final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
-                                await launchUrlString(url);
-                              },
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                                title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
-                              ),
-                            ),
+              return ListView.builder(
+                itemCount: snapshot.data?.result.length,
+                itemBuilder: (context, index) {
+                  final entry = snapshot.data?.result.entries.elementAt(index);
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: InkWell(
+                          onTap: () async {
+                            final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
+                            await launchUrlString(url);
+                          },
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                            title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                            subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                  );
+                },
               );
             }
           },
