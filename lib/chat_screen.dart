@@ -1,60 +1,70 @@
-// Remove the 'dart:convert' import statement
-//import 'dart:convert';
+// chat_screen.dart
+import 'dart:math';
 
+import 'package:ashiq/question_data.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:dart_openai/dart_openai.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChatScreen extends StatefulWidget {
   final String course;
+  final QuestionData ans;
 
-  const ChatScreen({super.key, required this.course});
+  const ChatScreen({super.key, required this.course, required this.ans});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class ChatBubble extends StatelessWidget {
-  final String message;
-  final bool isUser;
-
-  const ChatBubble({
-    super.key,
-    required this.message,
-    required this.isUser,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      margin:
-          EdgeInsets.symmetric(vertical: 4.0, horizontal: isUser ? 40.0 : 8.0),
-      decoration: BoxDecoration(
-        color: isUser ? Colors.blue : Colors.grey[300],
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Text(
-        message,
-        style: TextStyle(color: isUser ? Colors.white : Colors.black),
-      ),
-    );
-  }
-}
-
 class _ChatScreenState extends State<ChatScreen> {
-  final _textController = TextEditingController();
-  // ignore: unused_field
-  late Future<String> _futureResult;
-  final List<ChatBubble> _chatHistory = []; // Make it a List<ChatBubble>
+  final _messageController = TextEditingController();
+  var _awaitingResponse = false;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
+  final ScrollController _scrollController = ScrollController();
+  final List<MessageBubble> _chatHistory = [];
+  List<String> loadingPhrases = [
+    'Working on it, one sec.', 'I\'ll get back to you on that.', 'Just a moment, please.',
+    'Let me check on that.', 'I\'m almost there.', 'Hang tight.', 'Coming right up.',
+    'I\'m on it.', 'Be right back.', 'Just a sec, I\'m buffering.'
+  ];
 
   @override
   void initState() {
     super.initState();
-    _futureResult = fetchResultFromGPT(context, widget.course);
+    initMessage();
+  }
+  void initMessage() async {
+    setState(() => _awaitingResponse = true);
+    String response = await fetchResultFromBard('Why was I recommended the course [${widget.course}]');
+    setState(() {
+      _addMessage(response, false);
+      _awaitingResponse = false;
+    });
+  }
+  
+  void _addMessage(String response, bool isUserMessage) {
+    _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    _listKey.currentState!.insertItem(_chatHistory.length - 1);
   }
 
-  Future<String> fetchResultFromGPT(BuildContext context, String course) async {
+  Future<void> _onSubmitted(String message) async {
+    _messageController.clear();
+    setState(() {
+      _addMessage(message, true);
+      _awaitingResponse = true;
+    });
+    final result = await fetchResultFromBard(message);
+    setState(() {
+      _addMessage(result, false);
+      _awaitingResponse = false;
+    });
+  }
+
+
+  Future<String> fetchResultFromGPT(String course) async {
     OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
     OpenAI.showLogs = true;
     OpenAI.showResponsesLogs = true;
@@ -83,60 +93,219 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _submitMessage() async {
-    final text = _textController.text.trim();
-    if (text.isNotEmpty) {
-      _textController.clear();
-      // Wait for the result before updating the chat history
-      final result = await fetchResultFromGPT(context, widget.course);
-      setState(() {
-        _chatHistory.add(ChatBubble(message: 'You: $text', isUser: true));
-        _chatHistory.add(ChatBubble(message: 'Bot: $result', isUser: false));
-      });
+  Future<String> fetchResultFromBard(String message) async {
+    final apiKey = await rootBundle.loadString('assets/bard.key');
+    final endpoint = "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=$apiKey";
+    
+    final chatHistory = _chatHistory.map((bubble) {return {"content": bubble.content};}).toList();
+    if (chatHistory.isEmpty) chatHistory.add({"content": message});
+
+    final response = await http.post(
+      Uri.parse(endpoint),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "prompt": {
+          "context": '''
+            You are a very friendly, discerning course recommendation bot who helps students pick the best course for them.
+            You are trained to reject to answer questions that are too offtopic and reply in under 80-100 words unless more are needed.
+            You are chatting with a student who is interested in the course ["${widget.course}"] and so will speak only regarding it.
+            The student asks you to tell them more about the course and provide some suggestions on what they should learn first.
+            You respond to them with the most helpful information you can think of as well as base your answers on their previous
+            questions and the answers they have provided in the following survey json:\n${widget.ans.toJson()}''',
+          "examples": [
+            {
+              "input": {"content": "Who are you."},
+              "output": {"content": "I'm Nero, a helpful course recommending bot. I've been trained to help you pick a course for your higher studies."}},
+            {
+              "input": {"content": "Let's talk about smoething other than the course."},
+              "output": {"content": "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the course. So, to make things interesting, how about we play a small game to help u get a better idea of your course?."}
+            },
+            {
+              "input": {"content": "What is the course about?"},
+              "output": {"content": "That's a very good question!! The course is about ${widget.course}. It is a very interesting course that will help you learn a lot of things."}
+            }
+          ],
+          "messages": chatHistory,
+        },
+        "candidate_count": 1,
+        "top_p": 0.8,
+        "temperature": 0.7,
+      }),
+    );
+    debugPrint("$chatHistory");
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      debugPrint('Response: $json');
+      if (json['filters'] != null) {
+        return "Whoops~ Looks like your response was too offtopic, so it was filtered due to reason [${json['filters'][0]['reason']}].\nLet's try again, shall we?";
+      } else {
+        return json['candidates'][0]['content'];
+      }
+    } else {
+      // throw Exception('Failed to load result: ${response.body}');
+      return 'Status [${response.statusCode}]\nFailed to load result: ${response.body}';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final clrSchm = Theme.of(context).colorScheme;
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat Screen: ${widget.course}'),
+  appBar: AppBar(
+    title: const Text("Talk to Nero"),
+    backgroundColor: clrSchm.primaryContainer.withOpacity(0.2),
+    actions: [
+      IconButton(
+        icon: Icon(Icons.restart_alt, color: clrSchm.onPrimary),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Refresh Chat'),
+                content: const Text('Are you sure you want to restart the conversation?'),
+                actions: [
+                  TextButton(
+                    child: const Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: const Text('Restart'),
+                    onPressed: () {
+                      setState(() {
+                        _chatHistory.clear();
+                        initMessage();
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8.0),
-                itemCount: _chatHistory.length,
-                itemBuilder: (context, index) {
-                  final chatBubble = _chatHistory[index];
-                  return index % 2 == 0
-                      ? Text(chatBubble.message)
-                      : Text(
-                          chatBubble.message,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        );
-                },
-              ),
+    ],
+  ),
+  body: Center(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SizedBox(
+        width: min(720, screenSize.width * 0.95),
+        child: AnimatedList(
+              key: _listKey,
+              controller: _scrollController,
+              initialItemCount: _chatHistory.length,
+              itemBuilder: (context, index, animation) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(1, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: _chatHistory[index],
+                );
+              },
             ),
-            const Divider(height: 1.0),
-            ListTile(
-              title: TextField(
-                controller: _textController,
-                onSubmitted: (value) => _submitMessage(),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Type your message...',
+      ),
+    ),
+  ),
+  bottomNavigationBar: Container(
+    padding: const EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      color: clrSchm.primary.withOpacity(0.15),
+      borderRadius: BorderRadius.circular(12.0),
+      border: Border.all(color: clrSchm.secondary, width: 1),
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: !_awaitingResponse
+            ? TextField(
+              minLines: 1, maxLines: 5,
+              controller: _messageController,
+              onSubmitted: _onSubmitted,
+              decoration: InputDecoration(
+                hintText: 'Feel free to ask...',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                prefixIcon: Icon(Icons.question_answer, color: clrSchm.primary),
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  height: 24, width: 24,
+                  child: CircularProgressIndicator(color: clrSchm.primary, strokeWidth: 3),
                 ),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: _submitMessage,
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: StreamBuilder<String>(
+                    stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                    builder: (context, snapshot) {
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: Text(
+                          snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
+                          key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              ],
             ),
+        ),
+        IconButton(
+          onPressed: !_awaitingResponse ? () => _onSubmitted(_messageController.text.trim()) : null,
+          icon: Icon(Icons.send, color: clrSchm.primary),
+        ),
+      ],
+    ),
+  ),
+);
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  final String content;
+  final bool isUserMessage;
+
+  const MessageBubble({
+    required this.content,
+    required this.isUserMessage,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isUserMessage
+            ? themeData.colorScheme.secondary.withOpacity(0.4)
+            : themeData.colorScheme.primary.withOpacity(0.4),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  isUserMessage ? 'You' : 'Nero',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(content),
           ],
         ),
       ),

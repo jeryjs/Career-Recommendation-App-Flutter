@@ -1,13 +1,13 @@
 // ignore_for_file: unnecessary_string_escapes, prefer_const_constructors
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import 'question_data.dart';
 import 'chat_screen.dart';
@@ -24,6 +24,11 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   late Future<ResultData> futureResult;
   late String systemString, userString;
+  List<String> loadingPhrases = [
+    'Working on it, one sec.', 'I\'ll get back to you on that.', 'Just a moment, please.',
+    'Let me check on that.', 'I\'m almost there.', 'Hang tight.', 'Coming right up.',
+    'I\'m on it.', 'Be right back.', 'Just a sec, I\'m buffering.'
+  ];
 
   @override
   void initState() {
@@ -46,8 +51,6 @@ class _ResultScreenState extends State<ResultScreen> {
     // futureResult = fetchResultFromGPT();
     futureResult = fetchResultFromBard();
   }
-
-  
 
   Future<ResultData> fetchResultFromGPT() async {
     OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
@@ -126,7 +129,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     },
                   ),
                   const SizedBox(height: 10),
-                  const Text('Cooking up some recommendations for you~!'),
+                  Text(loadingPhrases[Random().nextInt(loadingPhrases.length)]),
                 ],
               );
             } else if (snapshot.hasError) {
@@ -154,7 +157,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             onTap: () {
                               // final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
                               // await launchUrlString(url);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
                             },
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
