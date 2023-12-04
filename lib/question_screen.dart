@@ -173,12 +173,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   .isEmpty) return;
               if (_step == _totSteps) {
                 debugPrint('Submit: ${ans.toJson()}');
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text("Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
-                //     duration: Duration(seconds: 5),
-                //   ),
-                // );
                 Navigator.push(
                     context,
                     MaterialPageRoute(
