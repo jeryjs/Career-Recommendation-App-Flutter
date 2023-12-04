@@ -45,3 +45,4 @@ assets/api.key
 assets/bard.key
 assets/gpt.key
 assets/openai.key
+.vscode/settings.json

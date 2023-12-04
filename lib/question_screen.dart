@@ -64,6 +64,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final clrschm = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: Container(
@@ -87,7 +88,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   .colorScheme
                   .primaryContainer
                   .withOpacity(0.3),
-              progressColor: Theme.of(context).colorScheme.primaryContainer,
+              progressColor: clrschm.primaryContainer,
               curve: Curves.easeInCirc,
               animateFromLastPercent: true,
             ),
@@ -126,7 +127,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       width: min(560, screenSize.width * 0.9),
                       height: Platform.isAndroid || Platform.isIOS
                           ? screenSize.height * 0.45
-                          : max(60, 0.9582 * screenSize.height - 410), //using formula y=mx+c (slope intercept)
+                          : max(
+                              60,
+                              0.9582 * screenSize.height -
+                                  410), //using formula y=mx+c (slope intercept)
                       padding: const EdgeInsets.all(8.0),
                       child: SingleChildScrollView(
                         child: Wrap(
@@ -136,18 +140,30 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           children: List<Widget>.generate(
                             qns.options[_index].length,
                             (i) {
-                              return FilterChip(
-                                label: Text(qns.options[_index][i]),
-                                selected:
-                                    ans.options[_index][i] == '' ? false : true,
-                                onSelected: (s) {
-                                  setState(() {
-                                    ans.options[_index][i] =
-                                        ans.options[_index][i] == ''
-                                            ? qns.options[_index][i]
-                                            : '';
-                                  });
-                                },
+                              return Container(
+                                decoration: ans.options[_index][i] == ''
+                                    ? null
+                                    : BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12), // Add this
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: clrschm.inverseSurface,
+                                            spreadRadius: 2, blurRadius: 2,
+                                          ),
+                                        ],
+                                      ),
+                                child: FilterChip(
+                                  label: Text(qns.options[_index][i]),
+                                  selected: ans.options[_index][i] == '' ? false : true,
+                                  onSelected: (s) {
+                                    setState(() {
+                                      ans.options[_index][i] =
+                                          ans.options[_index][i] == ''
+                                              ? qns.options[_index][i]
+                                              : '';
+                                    });
+                                  },
+                                ),
                               );
                             },
                           ),
@@ -187,8 +203,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
               gotoStep(++_step);
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(
-                  Theme.of(context).colorScheme.primaryContainer),
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(clrschm.primaryContainer),
               padding: MaterialStateProperty.all<EdgeInsets>(
                   EdgeInsets.symmetric(vertical: 16)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
