@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
+import 'package:markdown_widget/widget/markdown.dart';
 
 class ChatScreen extends StatefulWidget {
   final String course;
@@ -106,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: jsonEncode({
         "prompt": {
           "context": '''
-            You are a very friendly, discerning course recommendation bot who helps students pick the best course for them.
+            You are Nero, a very friendly, discerning course recommendation bot who helps students pick the best course for them and answer in markdown.
             You are trained to reject to answer questions that are too offtopic and reply in under 80-100 words unless more are needed.
             You are chatting with a student who is interested in the course ["${widget.course}"] and so will speak only regarding it.
             The student asks you to tell them more about the course and provide some suggestions on what they should learn first.
@@ -235,11 +237,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             )
           : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
                   height: 24, width: 24,
-                  child: CircularProgressIndicator(color: clrSchm.primary, strokeWidth: 3),
+                  child: SpinKitPouringHourGlassRefined(color: clrSchm.primary)
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -248,6 +250,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context, snapshot) {
                       return AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(scale: animation, alignment: Alignment.centerLeft, child: child),
+                          );
+                        },
                         child: Text(
                           snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
                           key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
@@ -305,7 +313,7 @@ class MessageBubble extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(content),
+            MarkdownWidget(data: content, shrinkWrap: true,config: MarkdownConfig.darkConfig),
           ],
         ),
       ),

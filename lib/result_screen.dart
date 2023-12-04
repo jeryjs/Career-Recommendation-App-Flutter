@@ -21,7 +21,7 @@ class ResultScreen extends StatefulWidget {
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> {
+class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMixin {
   late Future<ResultData> futureResult;
   late String systemString, userString;
   List<String> loadingPhrases = [
@@ -118,58 +118,87 @@ class _ResultScreenState extends State<ResultScreen> {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SpinKitFadingCircle(
-                    size: 120,
-                    itemBuilder: (BuildContext context, int index) {
-                      return DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: index.isEven ? clrSchm.inversePrimary : clrSchm.onPrimary,
+                  [
+                    SpinKitPouringHourGlassRefined(color: clrSchm.primary, size: 120),
+                    SpinKitDancingSquare(color: clrSchm.primary, size: 120),
+                    SpinKitSpinningLines(color: clrSchm.primary, size: 120),
+                    SpinKitPulsingGrid(color: clrSchm.primary, size: 120)
+                  ][Random().nextInt(4)],
+                  const SizedBox(height: 10),
+                  StreamBuilder<String>(
+                    stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                    builder: (context, snapshot) {
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SizeTransition(sizeFactor: animation, axis: Axis.horizontal, axisAlignment: -1, child: child),
+                          );
+                        },
+                        child: Text(
+                          snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
+                          key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                          style: TextStyle(fontSize: 20),
                         ),
                       );
                     },
                   ),
-                  const SizedBox(height: 10),
-                  Text(loadingPhrases[Random().nextInt(loadingPhrases.length)]),
                 ],
               );
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               return ListView.builder(
-                itemCount: snapshot.data?.result.length,
-                itemBuilder: (context, index) {
-                  final entry = snapshot.data?.result.entries.elementAt(index);
-                  return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(15.0),
+              itemCount: snapshot.data?.result.length,
+              itemBuilder: (context, index) {
+                final entry = snapshot.data?.result.entries.elementAt(index);
+                return FutureBuilder(
+                  future: Future.delayed(Duration(milliseconds: 200 * index)),
+                  builder: (context, AsyncSnapshot<void> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(); // Empty container
+                    } else {
+                      return SlideTransition(
+                        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
+                          CurvedAnimation(
+                            parent: AnimationController(duration: const Duration(milliseconds: 300), vsync: this)..forward(),
+                            curve: Curves.easeInOutSine,
                           ),
-                          child: InkWell(
-                            onTap: () {
-                              // final url = 'https://www.bing.com/search?showconv=1&sendquery=1&q=Learn+More+About+${entry!.key}';
-                              // await launchUrlString(url);
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
-                            },
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-                              title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                              subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
-                                                      ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              );
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
+                                },
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                                  title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                  subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+            );
             }
           },
         ),
