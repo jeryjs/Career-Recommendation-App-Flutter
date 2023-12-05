@@ -105,10 +105,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(qns.titles[_index],
-                              style: TextStyle(fontSize: 26)),
-                          Text('Pick what describe you best~',
-                              style: TextStyle(fontSize: 14)),
+                          AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SizeTransition(sizeFactor: animation, axis: Axis.horizontal, axisAlignment: -1, child: child),
+                            );
+                          },
+                            child: Text(qns.titles[_index], style: TextStyle(fontSize: 26), key: ValueKey(_index)),
+                          ),
+                          Text('Pick what describe you best~', style: TextStyle(fontSize: 14)),
                         ],
                       )),
                       Image.asset('assets/images/andy_2.gif', width: 70)
@@ -127,10 +134,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       width: min(560, screenSize.width * 0.9),
                       height: Platform.isAndroid || Platform.isIOS
                           ? screenSize.height * 0.45
-                          : max(
-                              60,
-                              0.9582 * screenSize.height -
-                                  410), //using formula y=mx+c (slope intercept)
+                          : max(60, 0.9582 * screenSize.height - 410), //using formula y=mx+c (slope intercept)
                       padding: const EdgeInsets.all(8.0),
                       child: SingleChildScrollView(
                         child: Wrap(
@@ -144,7 +148,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                 decoration: ans.options[_index][i] == ''
                                     ? null
                                     : BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12), // Add this
+                                        borderRadius: BorderRadius.circular(12),
                                         boxShadow: [
                                           BoxShadow(
                                             color: clrschm.inverseSurface,
