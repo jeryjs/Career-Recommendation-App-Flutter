@@ -226,55 +226,70 @@ class _ChatScreenState extends State<ChatScreen> {
       children: [
         Expanded(
           child: !_awaitingResponse
-            ? TextField(
-              minLines: 1, maxLines: 5,
-              controller: _messageController,
-              onSubmitted: _onSubmitted,
-              decoration: InputDecoration(
-                hintText: 'Feel free to ask...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                prefixIcon: Icon(Icons.question_answer, color: clrSchm.primary),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 24, width: 24,
-                  child: SpinKitPouringHourGlassRefined(color: clrSchm.primary)
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: StreamBuilder<String>(
-                    stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
-                    builder: (context, snapshot) {
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: ScaleTransition(scale: animation, alignment: Alignment.centerLeft, child: child),
-                          );
-                        },
-                        child: Text(
-                          snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
-                          key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
-                        ),
-                      );
-                    },
+            ? RawKeyboardListener(
+                focusNode: FocusNode(),
+                onKey: (RawKeyEvent event) {
+                  if (event is RawKeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      if (event.isShiftPressed) {
+                        _messageController.text = _messageController.text + '\n';
+                        _messageController.selection = TextSelection.fromPosition(TextPosition(offset: _messageController.text.length));
+                      } else {
+                        _onSubmitted(_messageController.text);
+                      }
+                    }
+                  }
+                },
+                child:TextField(
+                  minLines: 1, maxLines: 5,
+                  controller: _messageController,
+                  onSubmitted: _onSubmitted,
+                  decoration: InputDecoration(
+                    hintText: 'What would you like to know...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                    prefixIcon: Icon(Icons.question_answer, color: clrSchm.primary),
                   ),
-                )
-              ],
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 24, width: 24,
+                    child: SpinKitPouringHourGlassRefined(color: clrSchm.primary)
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: StreamBuilder<String>(
+                      stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                      builder: (context, snapshot) {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: ScaleTransition(scale: animation, alignment: Alignment.centerLeft, child: child),
+                            );
+                          },
+                          child: Text(
+                            snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
+                            key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
+            IconButton(
+              onPressed: !_awaitingResponse ? () => _onSubmitted(_messageController.text.trim()) : null,
+              icon: Icon(Icons.send, color: clrSchm.primary),
+            ),
+          ],
         ),
-        IconButton(
-          onPressed: !_awaitingResponse ? () => _onSubmitted(_messageController.text.trim()) : null,
-          icon: Icon(Icons.send, color: clrSchm.primary),
-        ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 }
 
