@@ -14,7 +14,7 @@
     "options": [
       [
         "Arts",
-        "Sciences",
+        "Science",
         "Business",
         "Tech",
         "Health",
@@ -35,7 +35,15 @@
         "Politics",
         "Environment",
         "Religion",
-        "Culture"
+        "Culture",
+        "Cars",
+        "Linguistics",
+        "Sociology",
+        "Architecture",
+        "Dance",
+        "Home Science"
+
+
       ],
       [
         "Coding",
@@ -68,7 +76,7 @@
         "Expert"
       ],
       [
-        "Academia",
+        "Academic",
         "Industry",
         "Entrepreneurship",
         "Freelancing",
