@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -10,7 +11,7 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   int _step = 1;
   final TextEditingController _nameController = TextEditingController();
-  int _age = 0;
+  final TextEditingController _ageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -30,52 +31,65 @@ class _StartScreenState extends State<StartScreen> {
             ],
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 100,
-              child: Image.asset('assets/images/andy_2.gif', height: 160),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              child: TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'What do I call you?', hintText: 'Enter your unique name',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  prefixIcon: const Icon(Icons.person),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: clrSchm.primaryContainer,width: 4),
+        child: _step == 1
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 100,
+                child: Image.asset('assets/images/andy_2.gif', height: 160),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'What do I call you?', hintText: 'Enter your unique name',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.person),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: clrSchm.primaryContainer,width: 4),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: TextField(
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: TextField(
+                  controller: _ageController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'How old might you be?', hintText: 'Enter your age',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4)),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                  decoration: InputDecoration(
+                    labelText: 'How old might you be?', hintText: 'Enter your age',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    prefixIcon: const Icon(Icons.calendar_today),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4)),
+                  ),
                 ),
               ),
-            ),
+            ],
+          )
+        : Column(
+          children: [
+            Text('Pick your preferred theme', style: TextStyle(fontSize: 26))
           ],
-        ),
+          
+        )
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.symmetric(vertical: 46, horizontal: 16),
         width: double.infinity,
         child: ElevatedButton(
           onPressed: () {
-            gotoStep(++_step);
+            if (_nameController.text != '' && _ageController != null) {
+              gotoStep(2);
+            }
           },
           style: ButtonStyle(
             backgroundColor:
@@ -91,5 +105,9 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  void gotoStep(int i) {}
+  void gotoStep(int i) {
+    setState(() {
+      _step = i;
+    });
+  }
 }
