@@ -48,14 +48,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
   
   void _addMessage(String response, bool isUserMessage) {
-    _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    _chatHistory
+        .add(MessageBubble(content: response, isUserMessage: isUserMessage));
     _listKey.currentState!.insertItem(_chatHistory.length - 1);
     // Scroll to the bottom of the list
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-    );
+    // Schedule the scroll after the frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Future<void> _onSubmitted(String message) async {
