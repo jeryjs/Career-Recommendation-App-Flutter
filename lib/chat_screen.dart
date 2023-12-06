@@ -28,9 +28,16 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<MessageBubble> _chatHistory = [];
   List<String> loadingPhrases = [
-    'Working on it, one sec.', 'I\'ll get back to you on that.', 'Just a moment, please.',
-    'Let me check on that.', 'I\'m almost there.', 'Hang tight.', 'Coming right up.',
-    'I\'m on it.', 'Be right back.', 'Just a sec, I\'m buffering.'
+    'Working on it, one sec.',
+    'I\'ll get back to you on that.',
+    'Just a moment, please.',
+    'Let me check on that.',
+    'I\'m almost there.',
+    'Hang tight.',
+    'Coming right up.',
+    'I\'m on it.',
+    'Be right back.',
+    'Just a sec, I\'m buffering.'
   ];
 
   @override
@@ -38,15 +45,17 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     initMessage();
   }
+
   void initMessage() async {
     setState(() => _awaitingResponse = true);
-    String response = await fetchResultFromBard('Why was I recommended the course [${widget.course}]');
+    String response = await fetchResultFromBard(
+        'Why was I recommended the course [${widget.course}]');
     setState(() {
       _addMessage(response, false);
       _awaitingResponse = false;
     });
   }
-  
+
   void _addMessage(String response, bool isUserMessage) {
     _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
     _listKey.currentState!.insertItem(_chatHistory.length - 1);
@@ -64,7 +73,6 @@ class _ChatScreenState extends State<ChatScreen> {
       _awaitingResponse = false;
     });
   }
-
 
   Future<String> fetchResultFromGPT(String course) async {
     OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
@@ -97,9 +105,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<String> fetchResultFromBard(String message) async {
     final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint = "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=$apiKey";
-    
-    final chatHistory = _chatHistory.map((bubble) {return {"content": bubble.content};}).toList();
+    final endpoint =
+        "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=$apiKey";
+
+    final chatHistory = _chatHistory.map((bubble) {
+      return {"content": bubble.content};
+    }).toList();
     if (chatHistory.isEmpty) chatHistory.add({"content": message});
 
     final response = await http.post(
@@ -117,14 +128,26 @@ class _ChatScreenState extends State<ChatScreen> {
           "examples": [
             {
               "input": {"content": "Who are you."},
-              "output": {"content": "I'm Nero, a helpful course recommending bot. I've been trained to help you pick a course for your higher studies."}},
+              "output": {
+                "content":
+                    "I'm Nero, a helpful course recommending bot. I've been trained to help you pick a course for your higher studies."
+              }
+            },
             {
-              "input": {"content": "Let's talk about smoething other than the course."},
-              "output": {"content": "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the course. So, to make things interesting, how about we play a small game to help u get a better idea of your course?."}
+              "input": {
+                "content": "Let's talk about smoething other than the course."
+              },
+              "output": {
+                "content":
+                    "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the course. So, to make things interesting, how about we play a small game to help u get a better idea of your course?."
+              }
             },
             {
               "input": {"content": "What is the course about?"},
-              "output": {"content": "That's a very good question!! The course is about ${widget.course}. It is a very interesting course that will help you learn a lot of things."}
+              "output": {
+                "content":
+                    "That's a very good question!! The course is about ${widget.course}. It is a very interesting course that will help you learn a lot of things."
+              }
             }
           ],
           "messages": chatHistory,
@@ -155,50 +178,51 @@ class _ChatScreenState extends State<ChatScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-  appBar: AppBar(
-    title: const Text("Talk to Nero"),
-    backgroundColor: clrSchm.primaryContainer.withOpacity(0.2),
-    actions: [
-      IconButton(
-        icon: Icon(Icons.restart_alt, color: clrSchm.onPrimary),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Refresh Chat'),
-                content: const Text('Are you sure you want to restart the conversation?'),
-                actions: [
-                  TextButton(
-                    child: const Text('Cancel'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  TextButton(
-                    child: const Text('Restart'),
-                    onPressed: () {
-                      setState(() {
-                        _chatHistory.clear();
-                        initMessage();
-                      });
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+      appBar: AppBar(
+        title: const Text("Talk to Nero"),
+        backgroundColor: clrSchm.primaryContainer.withOpacity(0.2),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.restart_alt, color: clrSchm.onPrimary),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Refresh Chat'),
+                    content: const Text(
+                        'Are you sure you want to restart the conversation?'),
+                    actions: [
+                      TextButton(
+                        child: const Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: const Text('Restart'),
+                        onPressed: () {
+                          setState(() {
+                            _chatHistory.clear();
+                            initMessage();
+                          });
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+        ],
       ),
-    ],
-  ),
-  body: Center(
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SizedBox(
-        width: min(720, screenSize.width * 0.95),
-        child: AnimatedList(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: min(720, screenSize.width * 0.95),
+            child: AnimatedList(
               key: _listKey,
               controller: _scrollController,
               initialItemCount: _chatHistory.length,
@@ -212,7 +236,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               },
             ),
+          ),
+        ),
       ),
+<<<<<<< HEAD
     ),
   ),
   bottomNavigationBar: Container(
@@ -266,6 +293,100 @@ class _ChatScreenState extends State<ChatScreen> {
                 )
               ],
             ),
+=======
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: clrSchm.primary.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12.0),
+          border: Border.all(color: clrSchm.secondary, width: 1),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: !_awaitingResponse
+                  ? RawKeyboardListener(
+                      focusNode: FocusNode(),
+                      onKey: (RawKeyEvent event) {
+                        if (event is RawKeyDownEvent) {
+                          if (event.logicalKey == LogicalKeyboardKey.enter) {
+                            if (event.isShiftPressed) {
+                              _messageController.text =
+                                  '${_messageController.text}\n';
+                              _messageController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset: _messageController.text.length));
+                            } else {
+                              _onSubmitted(_messageController.text);
+                            }
+                          }
+                        }
+                      },
+                      child: TextField(
+                        minLines: 1,
+                        maxLines: 5,
+                        controller: _messageController,
+                        onSubmitted: _onSubmitted,
+                        decoration: InputDecoration(
+                          hintText: 'What would you like to know...',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.0)),
+                          prefixIcon: Icon(Icons.question_answer,
+                              color: clrSchm.primary),
+                        ),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: SpinKitPouringHourGlassRefined(
+                                color: clrSchm.primary)),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: StreamBuilder<String>(
+                            stream: Stream.periodic(
+                                const Duration(seconds: 3),
+                                (i) => loadingPhrases[
+                                    Random().nextInt(loadingPhrases.length)]),
+                            builder: (context, snapshot) {
+                              return AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder: (Widget child,
+                                    Animation<double> animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: ScaleTransition(
+                                        scale: animation,
+                                        alignment: Alignment.centerLeft,
+                                        child: child),
+                                  );
+                                },
+                                child: Text(
+                                  snapshot.data ??
+                                      loadingPhrases[Random()
+                                          .nextInt(loadingPhrases.length)],
+                                  key: ValueKey<String>(snapshot.data ??
+                                      loadingPhrases[Random()
+                                          .nextInt(loadingPhrases.length)]),
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+            ),
+            IconButton(
+              onPressed: !_awaitingResponse
+                  ? () => _onSubmitted(_messageController.text.trim())
+                  : null,
+              icon: Icon(Icons.send, color: clrSchm.primary),
+            ),
+          ],
+>>>>>>> 2eba4ab (dead doesnt work for suree)
         ),
         IconButton(
           onPressed: !_awaitingResponse ? () => _onSubmitted(_messageController.text.trim()) : null,
@@ -313,7 +434,10 @@ class MessageBubble extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            MarkdownWidget(data: content, shrinkWrap: true,config: MarkdownConfig.darkConfig),
+            MarkdownWidget(
+                data: content,
+                shrinkWrap: true,
+                config: MarkdownConfig.darkConfig),
           ],
         ),
       ),
