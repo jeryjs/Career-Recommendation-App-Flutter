@@ -1,4 +1,5 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:ashiq/question_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -110,7 +111,7 @@ class _StartScreenState extends State<StartScreen> {
       child: ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const ThemeSelectionPage()));
+              builder: (context) => const QuestionScreen()));
         },
         style: ElevatedButton.styleFrom(
           elevation: 0,

@@ -2,6 +2,7 @@
 
 import 'dart:math';
 
+import 'package:ashiq/question_screen.dart';
 import 'package:ashiq/start_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -38,8 +39,8 @@ class MainApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             width: min(720, screenSize.width),
-            // child: QuestionScreen(),
-            child: StartScreen(),
+            child: QuestionScreen(),
+            // child: StartScreen(),
           ),
         ),
       ),

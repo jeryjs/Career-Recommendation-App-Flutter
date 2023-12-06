@@ -38,10 +38,11 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
       You are a super thoughtful course recommender for grade 10-12 students.
       You read data given to you in json format and ONLY reply in json format.
       You recommend 5 courses based on input json and provide a very enthusiastic and short reasoning for each course in 5-10 words.
+      Below your reasoning, u specify 3-5 skills (with short words) that should be polished to succeed on that course.
       The output should be in this exact same format:
-      {\"course1name\": \"reasoning1\", \"course2name\": \"reasoning2\",....}
+      {\"course1name\": [\"reasoning1\", \"Skills Required: skill1, skill2, skill3\"], \"course2name\": [\"reasoning2\", \"Skills Required: skill1, skill2, skill3, skill4, skill5\"],....}
       Here's an example output format for u to use to base ur reply on-
-      {\"Flutter Programmer\": \"I bet there\"s no better place to improve your programming skills!!\", \"Design Architect\": \"Let your imagination flow into the world around you!!\",....}
+      {\"Flutter Programmer\": [\"I bet there\'s no better place to improve your programming skills!!\", \"Dart programming, State Management, Testing, Problem-solving\"], \"Design Architect\": [\"Let your imagination flow into the world around you!!\", \"Skills Required: Attention to detail, Leadership, Creativity, Organizational skills\"],....}
     """;
     userString = """
       HERE IS THE USER'S ANSWERS:
@@ -74,6 +75,7 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
     );
 
     if (completion.choices.isNotEmpty) {
+      debugPrint('Result: ${completion.choices.first.message.content!.first.text}');
       return ResultData.fromJson(completion.choices.first.message.content!.first.text.toString());
     } else {
       throw Exception('Failed to load result');
@@ -168,26 +170,45 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
+                            },
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15.0),
                                 ),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
-                                },
                                 child: ListTile(
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                                  contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
                                   title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                  subtitle: Text(entry.value, style: TextStyle(fontSize: 16,)),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(entry.value[0], style: TextStyle(fontSize: 16)),
+                                      Padding(padding: EdgeInsets.only(top: 8)),
+                                      Divider(color: clrSchm.primaryContainer, thickness: 2.5),
+                                      Wrap(
+                                        spacing: 4,
+                                        runSpacing: 2,
+                                        children: [
+                                          Chip(label: Text('Skills Required:', style: TextStyle(fontSize: 12)), backgroundColor: clrSchm.inversePrimary),
+                                          for (var skill in entry.value[1].split(','))
+                                            Chip(
+                                              label: Text(skill.trim(), style: TextStyle(fontSize: 10)),
+                                              backgroundColor: clrSchm.primaryContainer,
+                                            ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -208,16 +229,23 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
 }
 
 class ResultData {
-  final Map<String, String> result;
+  final Map<String, List<String>> result;
 
   ResultData({required this.result});
 
   factory ResultData.fromJson(String jsonString) {
     Map<String, dynamic> jsonMap = jsonDecode(jsonString);
-    Map<String, String> resultMap = {};
+    Map<String, List<String>> resultMap = {};
+
+    debugPrint('JsonMap: $jsonMap');
 
     jsonMap.forEach((key, value) {
-      resultMap[key] = value.toString();
+      debugPrint('Key: $key, Value: $value');
+      var splitValues = value.toString().split(',');
+      debugPrint('SplitValues: $splitValues');
+      var firstPart = splitValues[0].replaceAll('[', '');
+      var secondPart = splitValues.sublist(1).join(',').trim().replaceAll(']', '');
+      resultMap[key] = [firstPart, secondPart];
     });
 
     debugPrint('ResultMap: $resultMap');
