@@ -239,61 +239,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
-<<<<<<< HEAD
-    ),
-  ),
-  bottomNavigationBar: Container(
-    padding: const EdgeInsets.all(8.0),
-    decoration: BoxDecoration(
-      color: clrSchm.primary.withOpacity(0.15),
-      borderRadius: BorderRadius.circular(12.0),
-      border: Border.all(color: clrSchm.secondary, width: 1),
-    ),
-    child: Row(
-      children: [
-        Expanded(
-          child: !_awaitingResponse
-            ? TextField(
-              minLines: 1, maxLines: 5,
-              controller: _messageController,
-              onSubmitted: _onSubmitted,
-              decoration: InputDecoration(
-                hintText: 'Feel free to ask...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                prefixIcon: Icon(Icons.question_answer, color: clrSchm.primary),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 24, width: 24,
-                  child: SpinKitPouringHourGlassRefined(color: clrSchm.primary)
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: StreamBuilder<String>(
-                    stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
-                    builder: (context, snapshot) {
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: ScaleTransition(scale: animation, alignment: Alignment.centerLeft, child: child),
-                          );
-                        },
-                        child: Text(
-                          snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
-                          key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              ],
-            ),
-=======
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
@@ -386,16 +331,9 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: Icon(Icons.send, color: clrSchm.primary),
             ),
           ],
->>>>>>> 2eba4ab (dead doesnt work for suree)
         ),
-        IconButton(
-          onPressed: !_awaitingResponse ? () => _onSubmitted(_messageController.text.trim()) : null,
-          icon: Icon(Icons.send, color: clrSchm.primary),
-        ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 }
 
