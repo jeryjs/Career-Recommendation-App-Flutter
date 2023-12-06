@@ -57,9 +57,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _addMessage(String response, bool isUserMessage) {
-    _chatHistory
-        .add(MessageBubble(content: response, isUserMessage: isUserMessage));
-    _listKey.currentState!.insertItem(_chatHistory.length - 1);
+    _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    try {_listKey.currentState!.insertItem(_chatHistory.length - 1);} catch (e) {debugPrint(e.toString());}
     // Scroll to the bottom of the list
     // Schedule the scroll after the frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -130,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "prompt": {
           "context": '''
             You are Nero, a very friendly, discerning course recommendation bot who helps students pick the best course for them and answer in markdown.
-            You are trained to reject to answer questions that are too offtopic and reply in under 80-100 words unless more are needed.
+            You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
             You are chatting with a student who is interested in the course ["${widget.course}"] and so will speak only regarding it.
             The student asks you to tell them more about the course and provide some suggestions on what they should learn first.
             You respond to them with the most helpful information you can think of as well as base your answers on their previous
@@ -227,28 +226,60 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: min(720, screenSize.width * 0.95),
-            child: AnimatedList(
-              key: _listKey,
-              controller: _scrollController,
-              initialItemCount: _chatHistory.length,
-              itemBuilder: (context, index, animation) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1, 0),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: _chatHistory[index],
+      body: _chatHistory.isNotEmpty
+      ? Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: min(720, screenSize.width * 0.95),
+              child: AnimatedList(
+                key: _listKey,
+                controller: _scrollController,
+                initialItemCount: _chatHistory.length,
+                itemBuilder: (context, index, animation) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(1, 0),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: _chatHistory[index],
+                  );
+                },
+              ),
+            ),
+          ),
+        )
+      : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            [
+              SpinKitPouringHourGlassRefined(color: clrSchm.primary, size: 120),
+              SpinKitDancingSquare(color: clrSchm.primary, size: 120),
+              SpinKitSpinningLines(color: clrSchm.primary, size: 120),
+              SpinKitPulsingGrid(color: clrSchm.primary, size: 120)
+            ][Random().nextInt(4)],
+            const SizedBox(height: 10),
+            StreamBuilder<String>(
+              stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+              builder: (context, snapshot) {
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SizeTransition(sizeFactor: animation, axis: Axis.horizontal, axisAlignment: -1, child: child),
+                    );
+                  },
+                  child: Text(
+                    snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
+                    key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                    style: TextStyle(fontSize: 20),
+                  ),
                 );
               },
             ),
-          ),
+          ],
         ),
-      ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
