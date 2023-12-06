@@ -2,9 +2,8 @@
 
 import 'dart:math';
 
+import 'package:ashiq/start_screen.dart';
 import 'package:flutter/material.dart';
-
-import 'start_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -40,7 +39,7 @@ class MainApp extends StatelessWidget {
             ),
             width: min(720, screenSize.width),
             // child: QuestionScreen(),
-            child: LoginPage(),
+            child: StartScreen(),
           ),
         ),
       ),
