@@ -14,7 +14,7 @@
     "options": [
       [
         "Arts",
-        "Sciences",
+        "Science",
         "Business",
         "Tech",
         "Health",
@@ -34,8 +34,12 @@
         "History",
         "Politics",
         "Environment",
-        "Religion",
-        "Culture"
+        "Mthematics",
+        "Automobile",
+        "Dance",
+        "Car"
+
+
       ],
       [
         "Coding",
@@ -46,20 +50,30 @@
         "Design",
         "Project Mgmt",
         "Research",
-        "Sales",
+        "Entrepreneurship",
         "Marketing",
         "Photography",
         "Music",
         "Sports Coaching",
         "Art",
         "Literature",
-        "Philosophy",
-        "Psychology",
+        "Writing",
+        "Teaching",
         "Economics",
         "History",
-        "Politics",
-        "Environment",
-        "Culture"
+        "Creativity",
+        "Negotiation",
+        "Fitness",
+        "Time Management",
+        "Public Speaking",
+        "Teamwork",
+        "Multilingualism",
+        "Diplomacy",
+        "Patience"
+
+
+
+
       ],
       [
         "Beginner",
@@ -68,19 +82,27 @@
         "Expert"
       ],
       [
-        "Academia",
-        "Industry",
+        "Academic",
+        "Health",
+        "Financial Independence",
         "Entrepreneurship",
         "Freelancing",
         "Public Service",
         "Non-profit",
         "Consulting",
         "Retirement",
-        "Career Change",
+        "Career Advancement",
         "Personal Growth",
-        "Hobby",
+        "Language Fluency",
         "Sports",
-        "Artistic Pursuit"
+        "Artistic Pursuit",
+        "International Career",
+        "Public Service",
+        "Family Building",
+        "Invention"
+
+
+
       ],
       [
         "Self-paced",
