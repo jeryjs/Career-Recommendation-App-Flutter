@@ -1,4 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:ashiq/settings_screen.dart';
+import 'package:ashiq/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -28,38 +30,12 @@ class _StartScreenState extends State<StartScreen> {
           const SizedBox(height: 40),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-            child: TextField(
-              controller: _nameController, maxLines: 1,
-              decoration: InputDecoration(
-                labelText: "What do I call you?", hintText: "Enter your unique name",
-                prefixIcon: const Icon(Icons.person),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4),
-                ),
-              ),
-              style: TextStyle(color: clrSchm.primary, fontSize: 15),
-            ),
+            child: textForm(title: "What do I call you?", hint: "Enter your unique name", controller: _nameController, context: context),
           ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: TextField(
-              controller: _ageController, maxLines: 1,
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: "How old might you be?", hintText: "Enter your age",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                prefixIcon: const Icon(Icons.calendar_today),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4),
-                ),
-              ),
-              style: TextStyle(color: clrSchm.primary, fontSize: 15),
-            ),
+            child: textForm(title: "How old might you be?", hint: "Enter your age", controller: _ageController, isDigits:true, context: context)
           ),
         ],
       ),
@@ -110,7 +86,7 @@ class _StartScreenState extends State<StartScreen> {
       child: ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const ThemeSelectionPage()));
+              builder: (context) => const SettingsScreen()));
         },
         style: ElevatedButton.styleFrom(
           elevation: 0,

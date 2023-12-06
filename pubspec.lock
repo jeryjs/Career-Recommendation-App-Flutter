@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
+  animated_theme_switcher:
+    dependency: "direct main"
+    description:
+      name: animated_theme_switcher
+      sha256: de8ce9872d6e6676ab1140f76ff00cd0084a9dfee62168044062629927949652
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.9"
   args:
     dependency: transitive
     description:
@@ -312,8 +320,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  settings_ui:
+    dependency: "direct main"
+    description:
+      name: settings_ui
+      sha256: d9838037cb554b24b4218b2d07666fbada3478882edefae375ee892b6c820ef3
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   shared_preferences:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: "81429e4481e1ccfb51ede496e916348668fd0921627779233bd24cc3ff6abd02"
