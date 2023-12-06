@@ -240,9 +240,7 @@ class ResultData {
     debugPrint('JsonMap: $jsonMap');
 
     jsonMap.forEach((key, value) {
-      debugPrint('Key: $key, Value: $value');
       var splitValues = value.toString().split(',');
-      debugPrint('SplitValues: $splitValues');
       var firstPart = splitValues[0].replaceAll('[', '');
       var secondPart = splitValues.sublist(1).join(',').trim().replaceAll(']', '');
       resultMap[key] = [firstPart, secondPart];

@@ -18,6 +18,7 @@ dependencies:
   flutter_markdown: ^0.6.18+2
   markdown_widget: ^2.3.1
   adaptive_theme: ^3.4.1
+  flutter_share: ^2.0.0
 
 dev_dependencies:
   flutter_test:

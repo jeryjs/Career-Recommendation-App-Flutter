@@ -5,6 +5,7 @@ import 'package:ashiq/question_data.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
@@ -192,30 +193,28 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: clrSchm.primaryContainer.withOpacity(0.2),
         actions: [
           IconButton(
-            icon: Icon(Icons.restart_alt, color: clrSchm.onPrimary),
+            icon: Icon(Icons.share, color: clrSchm.onPrimary),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Refresh Chat'),
-                    content: const Text(
-                        'Are you sure you want to restart the conversation?'),
+                    title: const Text('Share Chat'),
+                    content: const Text('Would you like to share your conversation?'),
                     actions: [
                       TextButton(
                         child: const Text('Cancel'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
                       TextButton(
-                        child: const Text('Restart'),
-                        onPressed: () {
-                          setState(() {
-                            _chatHistory.clear();
-                            initMessage();
-                          });
+                        child: const Text('Sure!'),
+                        onPressed: () async {
                           Navigator.of(context).pop();
+                          String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}').join('\n\n');
+                          await FlutterShare.share(
+                            title: 'Course Rec Chat History',
+                            text: chatHistory,
+                          );
                         },
                       ),
                     ],
@@ -273,7 +272,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Text(
                     snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
                     key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                   ),
                 );
               },
