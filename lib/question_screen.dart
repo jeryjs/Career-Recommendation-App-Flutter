@@ -156,18 +156,44 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                           ),
                                         ],
                                       ),
-                                child: FilterChip(
-                                  label: Text(qns.options[_index][i]),
-                                  selected: ans.options[_index][i] == '' ? false : true,
-                                  onSelected: (s) {
-                                    setState(() {
-                                      ans.options[_index][i] =
-                                          ans.options[_index][i] == ''
-                                              ? qns.options[_index][i]
-                                              : '';
-                                    });
-                                  },
-                                ),
+                                child: qns.options[_index][i] != "Other"
+                                  ? FilterChip(
+                                    label: Text(qns.options[_index][i]),
+                                    selected: ans.options[_index][i] == '' ? false : true,
+                                    onSelected: (s) {
+                                      setState(() {
+                                        ans.options[_index][i] =
+                                            ans.options[_index][i] == ''
+                                                ? qns.options[_index][i]
+                                                : '';
+                                      });
+                                    },
+                                  )
+                                  : InputChip(
+                                    label: Text('Other'),
+                                    onPressed: () async {
+                                      String? newOption = await showDialog<String>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Add a new option'),
+                                            content: TextFormField(
+                                              autofocus: true,
+                                              onFieldSubmitted: (value) {
+                                                Navigator.pop(context, value);
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      );
+                                      if (newOption!.isNotEmpty) {
+                                        setState(() {
+                                          qns.options[_index].insert(i, newOption);
+                                          ans.options[_index].insert(i, newOption);
+                                        });
+                                      }
+                                    },
+                                  )
                               );
                             },
                           ),
