@@ -12,7 +12,6 @@ import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
 import 'package:markdown_widget/widget/markdown.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatScreen extends StatefulWidget {
