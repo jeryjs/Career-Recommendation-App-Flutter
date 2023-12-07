@@ -12,8 +12,6 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen> {
 
-  bool _isAnimating = false;
-
   @override
   Widget build(BuildContext context) {
     final clrSchm = Theme.of(context).colorScheme;
@@ -29,6 +27,7 @@ class _StartScreenState extends State<StartScreen> {
                 return Stack(alignment: Alignment.center, children: [
                   Image.asset(
                     'assets/images/building_an_app.png',
+                    width: 600,
                     fit: BoxFit.cover,
                     color: Colors.white,
                     colorBlendMode: BlendMode.difference,
