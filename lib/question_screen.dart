@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ashiq/result_screen.dart';
+import 'package:ashiq/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -129,7 +130,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           Text('Pick what describe you best~', style: TextStyle(fontSize: 14)),
                         ],
                       )),
-                      Image.asset('assets/images/andy_2.gif', width: 70)
+                      Image.asset('assets/images/andy.gif', width: 70)
                     ],
                   ),
                 ),
@@ -144,7 +145,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       child: FadeTransition(
                         opacity: animation,
                         child: SlideTransition(
-                          position: Tween<Offset>(begin: Offset(2.5, -0.5), end: Offset(0.0, 0.0)).animate(animation),
+                          position: Tween<Offset>(begin: Offset(0.0, -0.5), end: Offset(0.0, 0.0)).animate(animation),
                           child: child,
                         ),
                       ),
@@ -169,43 +170,26 @@ class _QuestionScreenState extends State<QuestionScreen> {
                             (i) {
                               return Container(
                                 decoration: ans.options[_index][i] == ''
-                                    ? null
-                                    : BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: clrschm.inverseSurface,
-                                            spreadRadius: 2, blurRadius: 2,
-                                          ),
-                                        ],
-                                      ),
+                                  ? null
+                                  : BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [BoxShadow(color: clrschm.inverseSurface, spreadRadius: 2, blurRadius: 2)],
+                                  ),
                                 child: qns.options[_index][i] != "Other"
                                   ? FilterChip(
                                     label: Text(qns.options[_index][i]),
                                     selected: ans.options[_index][i] == '' ? false : true,
-                                    onSelected: (s) {
-                                      setState(() {
-                                        ans.options[_index][i] =
-                                            ans.options[_index][i] == ''
-                                                ? qns.options[_index][i]
-                                                : '';
-                                      });
-                                    },
+                                    onSelected: (s) =>
+                                      setState(() => ans.options[_index][i] = ans.options[_index][i] == ''? qns.options[_index][i]: '')
                                   )
                                   : InputChip(
                                     label: Text('Other'),
                                     onPressed: () async {
                                       String? newOption = await showDialog<String>(
-                                        context: context,
-                                        builder: (BuildContext context) {
+                                        context: context, builder: (BuildContext context) {
                                           return AlertDialog(
                                             title: Text('Add a new option'),
-                                            content: TextFormField(
-                                              autofocus: true,
-                                              onFieldSubmitted: (value) {
-                                                Navigator.pop(context, value);
-                                              },
-                                            ),
+                                            content: TextFormField(autofocus: true, onFieldSubmitted: (value) => Navigator.pop(context, value)),
                                           );
                                         },
                                       );
@@ -236,34 +220,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
         width: double.infinity,
         child: ElevatedButton(
             onPressed: () {
-              if (ans.options[_index]
-                  .where((o) => o.isNotEmpty)
-                  .toList()
-                  .isEmpty) return;
+              if (ans.options[_index].where((o) => o.isNotEmpty).toList().isEmpty) return;
               if (_step == _totSteps) {
-                debugPrint('Submit: ${ans.toJson()}');
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text("Here's what the json to send to gpt would look like:\n\n${ans.toJson()}"),
-                //     duration: Duration(seconds: 5),
-                //   ),
-                // );
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ResultScreen(answers: ans)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ResultScreen(answers: ans)));
               }
               gotoStep(++_step);
             },
-            style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(clrschm.primaryContainer),
-              padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(vertical: 16)),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8))),
-            ),
+            style: bottomLargeButton(context),
             child: Text('Submit', style: TextStyle(fontSize: 20))),
       ),
     );

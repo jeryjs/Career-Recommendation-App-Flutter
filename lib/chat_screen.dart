@@ -370,9 +370,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   return FadeTransition(
                                     opacity: animation,
                                     child: ScaleTransition(
-                                        scale: animation,
-                                        alignment: Alignment.centerLeft,
-                                        child: child),
+                                      scale: animation,
+                                      alignment: Alignment.centerLeft,
+                                      child: child
+                                    ),
                                   );
                                 },
                                 child: Text(
