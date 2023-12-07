@@ -1,8 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:ashiq/settings_screen.dart';
-import 'package:ashiq/widgets.dart';
+import 'package:ashiq/question_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -12,8 +10,8 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
+
+  bool _isAnimating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,88 +21,55 @@ class _StartScreenState extends State<StartScreen> {
       backgroundColor: clrSchm.surface,
       body: Column(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(175)),
-            child: Image.asset('assets/images/building_an_app.png', height: 290, fit: BoxFit.cover),
-          ),
-          const SizedBox(height: 40),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-            child: textForm(title: "What do I call you?", hint: "Enter your unique name", controller: _nameController, context: context),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: textForm(title: "How old might you be?", hint: "Enter your age", controller: _ageController, isDigits:true, context: context)
+          AnimatedContainer(
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeInOut,
+            height: _isAnimating ? MediaQuery.of(context).size.height*0.75 : 290,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(175)),
+              child: Image.asset('assets/images/building_an_app.png', fit: BoxFit.cover),
+            ),
           ),
         ],
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.symmetric(vertical: 46, horizontal: 16),
         width: double.infinity,
-        child: loginButtonWD(context),
+        child: preoceedButton(context),
       ),
     );
   }
 
-  Widget loginFormWD({required String title, required TextEditingController controller, bool digits = false}) {
+  Widget preoceedButton(BuildContext context) {
     final clrSchm = Theme.of(context).colorScheme;
     return SizedBox(
       height: 58,
-      child: TextField(
-        controller: controller,
-        maxLines: 1,
-        keyboardType: digits ? TextInputType.number : null,
-        inputFormatters: digits ? <TextInputFormatter>[
-          FilteringTextInputFormatter.digitsOnly
-        ] : null,
-        decoration: InputDecoration(
-          labelText: title,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-          prefixIcon: const Icon(Icons.calendar_today),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: clrSchm.primaryContainer,
-              width: 4,
-            ),
-          ),
-        ),
-        style: TextStyle(
-          color: clrSchm.primary,
-          fontSize: 15,
-        ),
-      ),
-    );
-  }
-
-  Widget loginButtonWD(BuildContext context) {
-    final clrSchm = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 58,
-      width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const SettingsScreen()));
+          setState(() {
+            _isAnimating = true;
+          });
+          Future.delayed(const Duration(seconds: 1), () {
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                transitionDuration: const Duration(seconds: 1),
+                pageBuilder: (context, animation, secondaryAnimation) => const QuestionScreen(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+              ),
+            );
+          });
         },
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: clrSchm.onPrimary,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(99))),
-        ),
-        child: Text(
-          'Proceed',
-          style: TextStyle(
-            color: clrSchm.onBackground,
-            fontSize: 25,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        // color: clrSchm.primary,
+        child: const Text('Proceed'),
       ),
     );
-}
+  }
 }
 
 class ThemeSelectionPage extends StatelessWidget {

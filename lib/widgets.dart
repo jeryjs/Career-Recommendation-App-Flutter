@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-Widget textForm({title, hint, required controller, isDigits=false, required BuildContext context}) {
+Widget textForm({title, hint, required controller, isDigits=false, required BuildContext context, icon}) {
   return TextField(
     controller: controller,
     maxLines: 1,
@@ -13,7 +13,7 @@ Widget textForm({title, hint, required controller, isDigits=false, required Buil
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(100),
       ),
-      prefixIcon: const Icon(Icons.calendar_today),
+      prefixIcon: Icon(icon),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: Theme.of(context).colorScheme.primaryContainer, width: 4),
