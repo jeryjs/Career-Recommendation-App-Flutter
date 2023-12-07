@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
 import 'question_data.dart';
+import 'settings_screen.dart';
 
 // Define a StatefulWidget as it maintains state that can change over time
 class QuestionScreen extends StatefulWidget {
@@ -67,6 +68,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
     final clrschm = Theme.of(context).colorScheme;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Course Rec!'),
+        backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));}
+          )
+        ],
+      ),
       body: Container(
         margin: EdgeInsets.all(2),
         child: Column(
@@ -126,9 +137,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
                 // Card for displaying options
                 AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: 500),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(begin: Offset(2.5, -0.5), end: Offset(0.0, 0.0)).animate(animation),
+                          child: child,
+                        ),
+                      ),
+                    );
+                  },
                   child: Card(
-                    key: ValueKey<int>(_index),
+                    key: ValueKey<int>(_step),
                     child: Container(
                       alignment: Alignment.center,
                       width: min(560, screenSize.width * 0.9),
