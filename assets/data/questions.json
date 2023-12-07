@@ -33,11 +33,11 @@
         "Economics",
         "History",
         "Politics",
-        "Environment",
-        "Mthematics",
+        "Environmental",
+        "Mathematics",
         "Automobile",
         "Dance",
-        "Car"
+        "Aeronautics"
 
 
       ],
@@ -48,7 +48,7 @@
         "Leadership",
         "Data",
         "Design",
-        "Project Mgmt",
+        "Project Mngmt",
         "Research",
         "Entrepreneurship",
         "Marketing",
@@ -97,7 +97,6 @@
         "Sports",
         "Artistic Pursuit",
         "International Career",
-        "Public Service",
         "Family Building",
         "Invention"
 
@@ -118,7 +117,8 @@
         "5-10 hours",
         ">10 hours",
         "Flexible",
-        "As needed"
+        "As needed",
+        "other"
       ],
       [
         "Theory-based",
@@ -141,6 +141,8 @@
         "French",
         "German",
         "Mandarin",
+        "Arabic",
+        "Hindi",
         "Other",
         "Multilingual",
         "Depends",
