@@ -1,7 +1,7 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:ashiq/question_screen.dart';
+import 'package:ashiq/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -11,8 +11,8 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
+
+  bool _isAnimating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -20,116 +20,93 @@ class _StartScreenState extends State<StartScreen> {
 
     return Scaffold(
       backgroundColor: clrSchm.surface,
-      body: Column(
-        children: [
+      body: Center(
+        child: Column(children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(175)),
-            child: Image.asset('assets/images/building_an_app.png', height: 290, fit: BoxFit.cover),
-          ),
-          const SizedBox(height: 40),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-            child: TextField(
-              controller: _nameController, maxLines: 1,
-              decoration: InputDecoration(
-                labelText: "What do I call you?", hintText: "Enter your unique name",
-                prefixIcon: const Icon(Icons.person),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4),
-                ),
-              ),
-              style: TextStyle(color: clrSchm.primary, fontSize: 15),
+            child: Builder(
+              builder: (context) {
+                return Stack(alignment: Alignment.center, children: [
+                  Image.asset(
+                    'assets/images/building_an_app.png',
+                    fit: BoxFit.cover,
+                    color: Colors.white,
+                    colorBlendMode: BlendMode.difference,
+                  ),
+                  // Image.asset('assets/images/andy.gif', fit: BoxFit.cover),
+                ]);
+              }
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 80),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: TextField(
-              controller: _ageController, maxLines: 1,
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: "How old might you be?", hintText: "Enter your age",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-                prefixIcon: const Icon(Icons.calendar_today),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: clrSchm.primaryContainer, width: 4),
-                ),
-              ),
-              style: TextStyle(color: clrSchm.primary, fontSize: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Welcome to', style: TextStyle(color: clrSchm.primary, fontSize: 24,fontWeight: FontWeight.w500)),
+                const SizedBox(height: 10),
+                Text('Course Rec!', style: TextStyle(color: clrSchm.primary, fontSize: 36, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+                Text('First, Let\'s get to know more about yourself!!',style: TextStyle(color: clrSchm.primary, fontSize: 24,fontWeight: FontWeight.w500)),
+              ],
             ),
           ),
-        ],
+        ]),
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.symmetric(vertical: 46, horizontal: 16),
         width: double.infinity,
-        child: loginButtonWD(context),
+        child: preoceedButton(context),
       ),
     );
   }
 
-  Widget loginFormWD({required String title, required TextEditingController controller, bool digits = false}) {
-    final clrSchm = Theme.of(context).colorScheme;
+  Widget preoceedButton(BuildContext context) {
     return SizedBox(
       height: 58,
-      child: TextField(
-        controller: controller,
-        maxLines: 1,
-        keyboardType: digits ? TextInputType.number : null,
-        inputFormatters: digits ? <TextInputFormatter>[
-          FilteringTextInputFormatter.digitsOnly
-        ] : null,
-        decoration: InputDecoration(
-          labelText: title,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(100)),
-          prefixIcon: const Icon(Icons.calendar_today),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(
-              color: clrSchm.primaryContainer,
-              width: 4,
-            ),
-          ),
-        ),
-        style: TextStyle(
-          color: clrSchm.primary,
-          fontSize: 15,
-        ),
-      ),
-    );
-  }
-
-  Widget loginButtonWD(BuildContext context) {
-    final clrSchm = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 58,
-      width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const QuestionScreen()));
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: clrSchm.onPrimary,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(99))),
-        ),
-        child: Text(
-          'Proceed',
-          style: TextStyle(
-            color: clrSchm.onBackground,
-            fontSize: 25,
-            fontWeight: FontWeight.w500,
+        onPressed: () => Navigator.push(context, 
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const QuestionScreen(),
+            transitionDuration: const Duration (milliseconds: 1000),
+            // reverseTransitionDuration: const Duration(milliseconds: 2000) ,
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              var screenSize = MediaQuery.of(context).size;
+              return ClipPath(
+                clipper: CircleRevealClipper(
+                  radius: animation.drive(Tween(begin: 0.0, end: screenSize.height * 1.5)).value,
+                  center: Offset(screenSize.width/2, screenSize.height-100),
+                ),
+                child: child,
+              );
+            }
           ),
         ),
+        style: bottomLargeButton(context),
+        child: const Text('Proceed', style: TextStyle(fontSize: 20)),
       ),
     );
+  }
 }
+
+class CircleRevealClipper extends CustomClipper<Path> {
+  // ignore: prefer_typing_uninitialized_variables
+  final center, radius;
+
+  CircleRevealClipper({this.center, this.radius});
+
+  @override
+  Path getClip(Size size) {
+    return Path()
+      ..addOval(Rect.fromCircle(
+        radius: radius, center: center
+      )
+    );
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
 
 class ThemeSelectionPage extends StatelessWidget {
@@ -141,20 +118,9 @@ class ThemeSelectionPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-          ),
-        ),
-        title: const Text(
-          'Appearance',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_back_rounded)),
+        title: const Text('Appearance', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
         elevation: 0,
       ),
       body: Padding(

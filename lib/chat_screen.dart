@@ -1,15 +1,19 @@
 // chat_screen.dart
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ashiq/question_data.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
 import 'package:markdown_widget/widget/markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatScreen extends StatefulWidget {
   final String course;
@@ -59,7 +63,20 @@ class _ChatScreenState extends State<ChatScreen> {
   void _addMessage(String response, bool isUserMessage) {
     _chatHistory
         .add(MessageBubble(content: response, isUserMessage: isUserMessage));
-    _listKey.currentState!.insertItem(_chatHistory.length - 1);
+    try {
+      _listKey.currentState!.insertItem(_chatHistory.length - 1);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    // Scroll to the bottom of the list
+    // Schedule the scroll after the frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Future<void> _onSubmitted(String message) async {
@@ -121,7 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
         "prompt": {
           "context": '''
             You are Nero, a very friendly, discerning course recommendation bot who helps students pick the best course for them and answer in markdown.
-            You are trained to reject to answer questions that are too offtopic and reply in under 80-100 words unless more are needed.
+            You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
             You are chatting with a student who is interested in the course ["${widget.course}"] and so will speak only regarding it.
             The student asks you to tell them more about the course and provide some suggestions on what they should learn first.
             You respond to them with the most helpful information you can think of as well as base your answers on their previous
@@ -184,32 +201,68 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: clrSchm.primaryContainer.withOpacity(0.2),
         actions: [
           IconButton(
-            icon: Icon(Icons.restart_alt, color: clrSchm.onPrimary),
+            icon: Icon(Icons.share, color: clrSchm.onPrimary),
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Refresh Chat'),
+                    title: const Text('Share Chat'),
                     content: const Text(
-                        'Are you sure you want to restart the conversation?'),
+                        'Would you like to share your conversation?'),
                     actions: [
                       TextButton(
                         child: const Text('Cancel'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
-                      TextButton(
-                        child: const Text('Restart'),
-                        onPressed: () {
-                          setState(() {
-                            _chatHistory.clear();
-                            initMessage();
-                          });
-                          Navigator.of(context).pop();
-                        },
-                      ),
+                      Platform.isAndroid || Platform.isIOS
+                          ? TextButton(
+                              child: const Text('Share'),
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                String chatHistory = _chatHistory
+                                    .map((message) =>
+                                        '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
+                                    .join('\n\n');
+                                await FlutterShare.share(
+                                  title: 'Course Rec Chat History',
+                                  text: chatHistory,
+                                );
+                              },
+                            )
+                          : TextButton(
+                              child: const Text('Share via WhatsApp'),
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                String chatHistory = _chatHistory
+                                    .map((message) =>
+                                        '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
+                                    .join('\n\n');
+                                String encodedChatHistory =
+                                    Uri.encodeComponent(chatHistory);
+                                String whatsappUrl =
+                                    'https://wa.me/?text=$encodedChatHistory';
+                                await launchUrlString(whatsappUrl);
+                              },
+                            ),
+                      if (!Platform.isAndroid || !Platform.isIOS)
+                        TextButton(
+                          child: const Text('Share via Email'),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            String chatHistory = _chatHistory
+                                .map((message) =>
+                                    '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
+                                .join('\n\n');
+                            String encodedChatHistory =
+                                Uri.encodeComponent(chatHistory);
+                            String emailSubject = 'Course Rec Chat History';
+                            String emailBody = encodedChatHistory;
+                            String emailUrl =
+                                'mailto:?subject=$emailSubject&body=$emailBody';
+                            await launchUrlString(emailUrl);
+                          },
+                        ),
                     ],
                   );
                 },
@@ -218,28 +271,73 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: min(720, screenSize.width * 0.95),
-            child: AnimatedList(
-              key: _listKey,
-              controller: _scrollController,
-              initialItemCount: _chatHistory.length,
-              itemBuilder: (context, index, animation) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1, 0),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: _chatHistory[index],
-                );
-              },
+      body: _chatHistory.isNotEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: min(720, screenSize.width * 0.95),
+                  child: AnimatedList(
+                    key: _listKey,
+                    controller: _scrollController,
+                    initialItemCount: _chatHistory.length,
+                    itemBuilder: (context, index, animation) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: _chatHistory[index],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                [
+                  SpinKitPouringHourGlassRefined(
+                      color: clrSchm.primary, size: 120),
+                  SpinKitDancingSquare(color: clrSchm.primary, size: 120),
+                  SpinKitSpinningLines(color: clrSchm.primary, size: 120),
+                  SpinKitPulsingGrid(color: clrSchm.primary, size: 120)
+                ][Random().nextInt(4)],
+                const SizedBox(height: 10),
+                StreamBuilder<String>(
+                  stream: Stream.periodic(
+                      const Duration(seconds: 3),
+                      (i) => loadingPhrases[
+                          Random().nextInt(loadingPhrases.length)]),
+                  builder: (context, snapshot) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SizeTransition(
+                              sizeFactor: animation,
+                              axis: Axis.horizontal,
+                              axisAlignment: -1,
+                              child: child),
+                        );
+                      },
+                      child: Text(
+                        snapshot.data ??
+                            loadingPhrases[
+                                Random().nextInt(loadingPhrases.length)],
+                        key: ValueKey<String>(snapshot.data ??
+                            loadingPhrases[
+                                Random().nextInt(loadingPhrases.length)]),
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-          ),
-        ),
-      ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
