@@ -1,4 +1,5 @@
 // chat_screen.dart
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ashiq/question_data.dart';
@@ -11,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
 import 'package:markdown_widget/widget/markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatScreen extends StatefulWidget {
   final String course;
@@ -206,15 +209,38 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: const Text('Cancel'),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
-                      TextButton(
-                        child: const Text('Sure!'),
+                      Platform.isAndroid || Platform.isIOS
+                        ? TextButton(
+                          child: const Text('Share'),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}').join('\n\n');
+                            await FlutterShare.share(
+                              title: 'Course Rec Chat History',
+                              text: chatHistory,
+                            );
+                          },
+                        )
+                        : TextButton(
+                          child: const Text('Share via WhatsApp'),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}').join('\n\n');
+                            String encodedChatHistory = Uri.encodeComponent(chatHistory);
+                            String whatsappUrl = 'https://wa.me/?text=$encodedChatHistory';
+                            await launchUrlString(whatsappUrl);
+                          },
+                        ),
+                      if (!Platform.isAndroid || !Platform.isIOS) TextButton(
+                        child: const Text('Share via Email'),
                         onPressed: () async {
                           Navigator.of(context).pop();
                           String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}').join('\n\n');
-                          await FlutterShare.share(
-                            title: 'Course Rec Chat History',
-                            text: chatHistory,
-                          );
+                          String encodedChatHistory = Uri.encodeComponent(chatHistory);
+                          String emailSubject = 'Course Rec Chat History';
+                          String emailBody = encodedChatHistory;
+                          String emailUrl = 'mailto:?subject=$emailSubject&body=$emailBody';
+                          await launchUrlString(emailUrl);
                         },
                       ),
                     ],
