@@ -39,6 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
     'Hang tight.',
     'Coming right up.',
     'I\'m on it.',
+    'Well.. well that\'s interesting.',
     'Be right back.',
     'Just a sec, I\'m buffering.'
   ];

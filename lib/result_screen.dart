@@ -21,13 +21,22 @@ class ResultScreen extends StatefulWidget {
   State<ResultScreen> createState() => _ResultScreenState();
 }
 
-class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMixin {
+class _ResultScreenState extends State<ResultScreen>
+    with TickerProviderStateMixin {
   late Future<ResultData> futureResult;
   late String systemString, userString;
   List<String> loadingPhrases = [
-    'Working on it, one sec.', 'I\'ll get back to you on that.', 'Just a moment, please.',
-    'Let me check on that.', 'I\'m almost there.', 'Hang tight.', 'Coming right up.',
-    'I\'m on it.', 'Be right back.', 'Just a sec, I\'m buffering.'
+    'Working on it, one sec.',
+    'I\'ll get back to you on that.',
+    'Just a moment, please.',
+    'Let me check on that.',
+    'I\'m almost there.',
+    'Hang tight.',
+    'Coming right up.',
+    'Well.. well that\'s interesting.',
+    'I\'m on it.',
+    'Be right back.',
+    'Just a sec, I\'m buffering.'
   ];
 
   @override
@@ -60,11 +69,15 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
 
     final systemMessage = OpenAIChatCompletionChoiceMessageModel(
       role: OpenAIChatMessageRole.system,
-      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)],
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(systemString)
+      ],
     );
     final userMessage = OpenAIChatCompletionChoiceMessageModel(
       role: OpenAIChatMessageRole.user,
-      content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)],
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(userString)
+      ],
     );
 
     final completion = await OpenAI.instance.chat.create(
@@ -75,8 +88,10 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
     );
 
     if (completion.choices.isNotEmpty) {
-      debugPrint('Result: ${completion.choices.first.message.content!.first.text}');
-      return ResultData.fromJson(completion.choices.first.message.content!.first.text.toString());
+      debugPrint(
+          'Result: ${completion.choices.first.message.content!.first.text}');
+      return ResultData.fromJson(
+          completion.choices.first.message.content!.first.text.toString());
     } else {
       throw Exception('Failed to load result');
     }
@@ -84,7 +99,8 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
 
   Future<ResultData> fetchResultFromBard() async {
     final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint = "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
+    final endpoint =
+        "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
     final response = await http.post(
       Uri.parse(endpoint),
       headers: {'Content-Type': 'application/json'},
@@ -121,26 +137,39 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   [
-                    SpinKitPouringHourGlassRefined(color: clrSchm.primary, size: 120),
+                    SpinKitPouringHourGlassRefined(
+                        color: clrSchm.primary, size: 120),
                     SpinKitDancingSquare(color: clrSchm.primary, size: 120),
                     SpinKitSpinningLines(color: clrSchm.primary, size: 120),
                     SpinKitPulsingGrid(color: clrSchm.primary, size: 120)
                   ][Random().nextInt(4)],
                   const SizedBox(height: 10),
                   StreamBuilder<String>(
-                    stream: Stream.periodic(const Duration(seconds: 3), (i) => loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                    stream: Stream.periodic(
+                        const Duration(seconds: 3),
+                        (i) => loadingPhrases[
+                            Random().nextInt(loadingPhrases.length)]),
                     builder: (context, snapshot) {
                       return AnimatedSwitcher(
                         duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
                           return FadeTransition(
                             opacity: animation,
-                            child: SizeTransition(sizeFactor: animation, axis: Axis.horizontal, axisAlignment: -1, child: child),
+                            child: SizeTransition(
+                                sizeFactor: animation,
+                                axis: Axis.horizontal,
+                                axisAlignment: -1,
+                                child: child),
                           );
                         },
                         child: Text(
-                          snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)],
-                          key: ValueKey<String>(snapshot.data ?? loadingPhrases[Random().nextInt(loadingPhrases.length)]),
+                          snapshot.data ??
+                              loadingPhrases[
+                                  Random().nextInt(loadingPhrases.length)],
+                          key: ValueKey<String>(snapshot.data ??
+                              loadingPhrases[
+                                  Random().nextInt(loadingPhrases.length)]),
                           style: TextStyle(fontSize: 20),
                         ),
                       );
@@ -152,74 +181,106 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
               return Text('Error: ${snapshot.error}');
             } else {
               return ListView.builder(
-              itemCount: snapshot.data?.result.length,
-              itemBuilder: (context, index) {
-                final entry = snapshot.data?.result.entries.elementAt(index);
-                return FutureBuilder(
-                  future: Future.delayed(Duration(milliseconds: 200 * index)),
-                  builder: (context, AsyncSnapshot<void> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(); // Empty container
-                    } else {
-                      return SlideTransition(
-                        position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
-                          CurvedAnimation(
-                            parent: AnimationController(duration: const Duration(milliseconds: 300), vsync: this)..forward(),
-                            curve: Curves.easeInOutSine,
+                itemCount: snapshot.data?.result.length,
+                itemBuilder: (context, index) {
+                  final entry = snapshot.data?.result.entries.elementAt(index);
+                  return FutureBuilder(
+                    future: Future.delayed(Duration(milliseconds: 200 * index)),
+                    builder: (context, AsyncSnapshot<void> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container(); // Empty container
+                      } else {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                                  begin: const Offset(1, 0), end: Offset.zero)
+                              .animate(
+                            CurvedAnimation(
+                              parent: AnimationController(
+                                  duration: const Duration(milliseconds: 300),
+                                  vsync: this)
+                                ..forward(),
+                              curve: Curves.easeInOutSine,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(course: entry!.key, ans: widget.answers)));
-                            },
-                            child: Card(
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [clrSchm.inversePrimary, clrSchm.secondaryContainer],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ChatScreen(
+                                            course: entry!.key,
+                                            ans: widget.answers)));
+                              },
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0)),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        clrSchm.inversePrimary,
+                                        clrSchm.secondaryContainer
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(15.0),
                                   ),
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                                  title: Text(entry!.key, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(entry.value[0], style: TextStyle(fontSize: 16)),
-                                      Padding(padding: EdgeInsets.only(top: 8)),
-                                      Divider(color: clrSchm.primaryContainer, thickness: 2.5),
-                                      Wrap(
-                                        spacing: 4,
-                                        runSpacing: 2,
-                                        children: [
-                                          Chip(label: Text('Skills Required:', style: TextStyle(fontSize: 12)), backgroundColor: clrSchm.inversePrimary),
-                                          for (var skill in entry.value[1].split(','))
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 25, vertical: 12),
+                                    title: Text(entry!.key,
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold)),
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(entry.value[0],
+                                            style: TextStyle(fontSize: 16)),
+                                        Padding(
+                                            padding: EdgeInsets.only(top: 8)),
+                                        Divider(
+                                            color: clrSchm.primaryContainer,
+                                            thickness: 2.5),
+                                        Wrap(
+                                          spacing: 4,
+                                          runSpacing: 2,
+                                          children: [
                                             Chip(
-                                              label: Text(skill.trim(), style: TextStyle(fontSize: 10)),
-                                              backgroundColor: clrSchm.primaryContainer,
-                                            ),
-                                        ],
-                                      ),
-                                    ],
+                                                label: Text('Skills Required:',
+                                                    style: TextStyle(
+                                                        fontSize: 12)),
+                                                backgroundColor:
+                                                    clrSchm.inversePrimary),
+                                            for (var skill
+                                                in entry.value[1].split(','))
+                                              Chip(
+                                                label: Text(skill.trim(),
+                                                    style: TextStyle(
+                                                        fontSize: 10)),
+                                                backgroundColor:
+                                                    clrSchm.primaryContainer,
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-            );
+                        );
+                      }
+                    },
+                  );
+                },
+              );
             }
           },
         ),
@@ -242,7 +303,8 @@ class ResultData {
     jsonMap.forEach((key, value) {
       var splitValues = value.toString().split(',');
       var firstPart = splitValues[0].replaceAll('[', '');
-      var secondPart = splitValues.sublist(1).join(',').trim().replaceAll(']', '');
+      var secondPart =
+          splitValues.sublist(1).join(',').trim().replaceAll(']', '');
       resultMap[key] = [firstPart, secondPart];
     });
 
