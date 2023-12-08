@@ -49,9 +49,9 @@ class _ResultScreenState extends State<ResultScreen>
       You recommend 5 courses based on input json and provide a very enthusiastic and short reasoning for each course in 5-10 words.
       Below your reasoning, u specify 3-5 skills (with short words) that should be polished to succeed on that course.
       The output should be in this exact same format:
-      {\"[degree1] course1name\": [\"reasoning1\", \"Skills Required: skill1, skill2, skill3\"], \"[degree2] course2name\": [\"reasoning2\", \"Skills Required: skill1, skill2, skill3, skill4, skill5\"],....}
+      {\"course1name\": [\"reasoning1\", \"Skills Required: skill1, skill2, skill3\"], \"course2name\": [\"reasoning2\", \"Skills Required: skill1, skill2, skill3, skill4, skill5\"],....}
       Here's an example output format for u to use to base ur reply on-
-      {\"[B.Tech] Flutter Programmer\": [\"I bet there\'s no better place to improve your programming skills!!\", \"Dart programming, State Management, Testing, Problem-solving\"], \"[B.Arch] Design Architect\": [\"Let your imagination flow into the world around you!!\", \"Skills Required: Attention to detail, Leadership, Creativity, Organizational skills\"],....}
+      {\"Flutter Programmer\": [\"I bet there\'s no better place to improve your programming skills!!\", \"Dart programming, State Management, Testing, Problem-solving\"], \"Design Architect\": [\"Let your imagination flow into the world around you!!\", \"Skills Required: Attention to detail, Leadership, Creativity, Organizational skills\"],....}
     """;
     userString = """
       HERE IS THE USER'S ANSWERS:
@@ -126,7 +126,7 @@ class _ResultScreenState extends State<ResultScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Suggested Careers'),
+        title: const Text('Result Screen'),
       ),
       body: Center(
         child: FutureBuilder<ResultData>(
