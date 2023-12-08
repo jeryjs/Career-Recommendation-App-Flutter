@@ -1,20 +1,14 @@
 // chat_screen.dart
-import 'dart:io';
 import 'dart:math';
-
 import 'package:ashiq/question_data.dart';
 import 'package:ashiq/widgets.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
-import 'package:image/image.dart' as img;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'dart:typed_data';
 import 'package:markdown_widget/widget/markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
