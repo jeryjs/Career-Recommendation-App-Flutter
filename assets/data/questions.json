@@ -37,7 +37,8 @@
 			"Mathematics",
 			"Automobile",
 			"Dance",
-			"Aeronautics"
+			"Aeronautics",
+			"Other"
 		],
 		[
 			"Coding",
@@ -67,7 +68,8 @@
 			"Teamwork",
 			"Multilingualism",
 			"Diplomacy",
-			"Patience"
+			"Patience",
+			"Other"
 		],
 		["Beginner", "Intermediate", "Advanced", "Expert"],
 		[
@@ -88,7 +90,8 @@
 			"International Career",
 			"Public Service",
 			"Family Building",
-			"Invention"
+			"Invention",
+			"Other"
 		],
 		["Self-paced", "Structured", "Mixed", "Mentor-guided", "Community-driven", "Project-based"],
 		["<2 hours", "2-5 hours", "5-10 hours", ">10 hours", "Flexible", "As needed", "Other"],

@@ -12,6 +12,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
+import 'package:image/image.dart' as img;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'dart:typed_data';
 import 'package:markdown_widget/widget/markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -42,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
     'Hang tight.',
     'Coming right up.',
     'I\'m on it.',
+    'Well.. well that\'s interesting.',
     'Be right back.',
     'Just a sec, I\'m buffering.'
   ];
