@@ -33,6 +33,22 @@ Widget textForm(
   );
 }
 
+InputDecoration textFormDecoration(title,hint, icon, {required context}) {
+  return InputDecoration(
+      labelText: title,
+      hintText: hint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(100),
+      ),
+      prefixIcon: Icon(icon),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primaryContainer, width: 4),
+      ),
+    );
+}
+
 ButtonStyle bottomLargeButton(context) {
   return ButtonStyle(
     backgroundColor: MaterialStateProperty.all<Color>(

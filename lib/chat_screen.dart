@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ashiq/question_data.dart';
+import 'package:ashiq/widgets.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:markdown_widget/config/all.dart';
 import 'dart:convert';
 import 'package:markdown_widget/widget/markdown.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -27,6 +27,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
+  final _exportWAController = TextEditingController();
+  final _exportEmailController = TextEditingController();
   var _awaitingResponse = false;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
@@ -208,61 +210,46 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Text('Share Chat'),
-                    content: const Text(
-                        'Would you like to share your conversation?'),
+                    content: const Text('How would you like to share your conversation?'),
                     actions: [
+                      TextField(
+                        controller: _exportWAController,
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
+                        decoration: textFormDecoration("Share Via WhatsApp", "Enter your WA Number", Icons.message_outlined, context: context).copyWith(
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: () async {
+                              String number = _exportWAController.text;
+                              if (!number.startsWith('966')) number = '966$number';
+                              if (![9,12].contains(number.length)) return;
+                              Navigator.of(context).pop();
+                              String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}').join('\n\n');
+                              await launchUrlString('https://wa.me/$number?text=${Uri.encodeComponent(chatHistory)}');
+                            },
+                          ),
+                        ),
+                      ),
+                      const Padding(padding: EdgeInsets.only(top: 24)),
+                      TextField(
+                        controller: _exportEmailController,
+                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.deny(RegExp(' '))],
+                        decoration: textFormDecoration("Share Via Email", "Enter your Email Address", Icons.email_outlined, context: context).copyWith(
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: () async {
+                              String mail = _exportEmailController.text;
+                              if (!mail.contains(RegExp(r'@\w+\.\w+.*$'))) return;
+                              String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}').join('\n\n');
+                              await launchUrlString('mailto:$mail?subject=Career Rec! Chat History&body=${Uri.encodeComponent(chatHistory)}');
+                            }
+                          )
+                        ),
+                      ),
+                      const Padding(padding: EdgeInsets.only(top: 16)),
                       TextButton(
                         child: const Text('Cancel'),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
-                      Platform.isAndroid || Platform.isIOS
-                          ? TextButton(
-                              child: const Text('Share'),
-                              onPressed: () async {
-                                Navigator.of(context).pop();
-                                String chatHistory = _chatHistory
-                                    .map((message) =>
-                                        '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
-                                    .join('\n\n');
-                                await FlutterShare.share(
-                                  title: 'Course Rec Chat History',
-                                  text: chatHistory,
-                                );
-                              },
-                            )
-                          : TextButton(
-                              child: const Text('Share via WhatsApp'),
-                              onPressed: () async {
-                                Navigator.of(context).pop();
-                                String chatHistory = _chatHistory
-                                    .map((message) =>
-                                        '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
-                                    .join('\n\n');
-                                String encodedChatHistory =
-                                    Uri.encodeComponent(chatHistory);
-                                String whatsappUrl =
-                                    'https://wa.me/?text=$encodedChatHistory';
-                                await launchUrlString(whatsappUrl);
-                              },
-                            ),
-                      if (!Platform.isAndroid || !Platform.isIOS)
-                        TextButton(
-                          child: const Text('Share via Email'),
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            String chatHistory = _chatHistory
-                                .map((message) =>
-                                    '${message.isUserMessage ? 'You: ' : 'Nero: '}${message.content}')
-                                .join('\n\n');
-                            String encodedChatHistory =
-                                Uri.encodeComponent(chatHistory);
-                            String emailSubject = 'Course Rec Chat History';
-                            String emailBody = encodedChatHistory;
-                            String emailUrl =
-                                'mailto:?subject=$emailSubject&body=$emailBody';
-                            await launchUrlString(emailUrl);
-                          },
-                        ),
                     ],
                   );
                 },
