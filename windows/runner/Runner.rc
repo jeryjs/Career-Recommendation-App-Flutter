@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "ashiq" "\0"
+            VALUE "FileDescription", "career_rec" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ashiq" "\0"
+            VALUE "InternalName", "career_rec" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "ashiq.exe" "\0"
-            VALUE "ProductName", "ashiq" "\0"
+            VALUE "OriginalFilename", "career_rec.exe" "\0"
+            VALUE "ProductName", "career_rec" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

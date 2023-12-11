@@ -1,6 +1,6 @@
-# Course-Recommendation-App-Flutter
+# Carrer-Recommendation-App-Flutter
 
-A new Demo Flutter project for recommending Courses to join
+A new Demo Flutter project for recommending Careers
 
 
 

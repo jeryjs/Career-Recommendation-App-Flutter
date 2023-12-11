@@ -1,7 +1,7 @@
 // chat_screen.dart
 import 'dart:math';
-import 'package:ashiq/question_data.dart';
-import 'package:ashiq/widgets.dart';
+import 'question_data.dart';
+import 'widgets.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +13,10 @@ import 'package:markdown_widget/widget/markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String course;
+  final String career;
   final QuestionData ans;
 
-  const ChatScreen({super.key, required this.course, required this.ans});
+  const ChatScreen({super.key, required this.career, required this.ans});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -53,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initMessage() async {
     setState(() => _awaitingResponse = true);
     String response = await fetchResultFromBard(
-        'Why was I recommended the course [${widget.course}]');
+        'Why was I recommended the career [${widget.career}]');
     setState(() {
       _addMessage(response, false);
       _awaitingResponse = false;
@@ -61,8 +61,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _addMessage(String response, bool isUserMessage) {
-    _chatHistory
-        .add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    final chatHistoryJson = _chatHistory.map((bubble) {
+      return {"content": bubble.content, "isUserMessage": bubble.isUserMessage};
+    }).toList();
+    debugPrint('Chat history: $chatHistoryJson');
     try {
       _listKey.currentState!.insertItem(_chatHistory.length - 1);
     } catch (e) {
@@ -92,13 +95,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<String> fetchResultFromGPT(String course) async {
+  Future<String> fetchResultFromGPT(String career) async {
     OpenAI.apiKey = await rootBundle.loadString('assets/openai.key');
     OpenAI.showLogs = true;
     OpenAI.showResponsesLogs = true;
 
     final prompt =
-        "Hello! I'm interested in learning more about $course. Can you tell me more about the course and provide some suggestions on what I should learn first?";
+        "Hello! I'm interested in learning more about $career. Can you tell me more about the career and provide some suggestions on what I should learn first?";
 
     final completion = await OpenAI.instance.chat.create(
       model: 'gpt-3.5-turbo',
@@ -137,10 +140,10 @@ class _ChatScreenState extends State<ChatScreen> {
       body: jsonEncode({
         "prompt": {
           "context": '''
-            You are Nero, a very friendly, discerning course recommendation bot who helps students pick the best course for them and answer in markdown.
+            You are Nero, a very friendly, discerning career recommendation bot who helps students pick the best career for them and answer in markdown.
             You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
-            You are chatting with a student who is interested in the course ["${widget.course}"] and so will speak only regarding it.
-            The student asks you to tell them more about the course and provide some suggestions on what they should learn first.
+            You are chatting with a student who is interested in the career ["${widget.career}"] and so will speak only regarding it.
+            The student asks you to tell them more about the career and provide some suggestions on what they should learn first.
             You respond to them with the most helpful information you can think of as well as base your answers on their previous
             questions and the answers they have provided in the following survey json:\n${widget.ans.toJson()}''',
           "examples": [
@@ -148,23 +151,23 @@ class _ChatScreenState extends State<ChatScreen> {
               "input": {"content": "Who are you."},
               "output": {
                 "content":
-                    "I'm Nero, a helpful course recommending bot. I've been trained to help you pick a course for your higher studies."
+                    "I'm Nero, a helpful career recommending bot. I've been trained to help you pick a career for your higher studies."
               }
             },
             {
               "input": {
-                "content": "Let's talk about smoething other than the course."
+                "content": "Let's talk about smoething other than the career."
               },
               "output": {
                 "content":
-                    "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the course. So, to make things interesting, how about we play a small game to help u get a better idea of your course?."
+                    "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the career. So, to make things interesting, how about we play a small game to help u get a better idea of your career?."
               }
             },
             {
-              "input": {"content": "What is the course about?"},
+              "input": {"content": "What is the career about?"},
               "output": {
                 "content":
-                    "That's a very good question!! The course is about ${widget.course}. It is a very interesting course that will help you learn a lot of things."
+                    "That's a very good question!! The career is about ${widget.career}. It is a very interesting career that will help you learn a lot of things."
               }
             }
           ],

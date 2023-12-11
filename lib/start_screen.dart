@@ -1,6 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:ashiq/question_screen.dart';
-import 'package:ashiq/widgets.dart';
+import 'question_screen.dart';
+import 'widgets.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -45,7 +45,7 @@ class _StartScreenState extends State<StartScreen> {
               children: [
                 Text('Welcome to', style: TextStyle(color: clrSchm.primary, fontSize: 24,fontWeight: FontWeight.w500)),
                 const SizedBox(height: 10),
-                Text('Course Rec!', style: TextStyle(color: clrSchm.primary, fontSize: 36, fontWeight: FontWeight.w700)),
+                Text('Career Rec!', style: TextStyle(color: clrSchm.primary, fontSize: 36, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 10),
                 Text('First, Let\'s get to know more about yourself!!',style: TextStyle(color: clrSchm.primary, fontSize: 24,fontWeight: FontWeight.w500)),
               ],

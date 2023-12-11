@@ -210,7 +210,7 @@ class _ResultScreenState extends State<ResultScreen>
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ChatScreen(
-                                            course: entry!.key,
+                                            career: entry!.key,
                                             ans: widget.answers)));
                               },
                               child: Card(

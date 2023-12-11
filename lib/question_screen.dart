@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:ashiq/result_screen.dart';
-import 'package:ashiq/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
+import 'result_screen.dart';
+import 'widgets.dart';
 import 'question_data.dart';
 import 'settings_screen.dart';
 
@@ -70,7 +70,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Course Rec!'),
+        title: Text('Career Rec!'),
         backgroundColor: Colors.black,
         actions: [
           IconButton(
@@ -222,6 +222,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
             onPressed: () {
               if (ans.options[_index].where((o) => o.isNotEmpty).toList().isEmpty) return;
               if (_step == _totSteps) {
+                debugPrint("Answers: ${ans.toJson()}");
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ResultScreen(answers: ans)));
               }
               gotoStep(++_step);

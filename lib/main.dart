@@ -2,8 +2,7 @@
 
 import 'dart:math';
 
-import 'package:ashiq/question_screen.dart';
-import 'package:ashiq/start_screen.dart';
+import 'start_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -29,7 +28,7 @@ class MainApp extends StatelessWidget {
             .onPrimaryContainer
             .withOpacity(0.3),
         appBar: AppBar(
-          title: Text('Course Rec!'),
+          title: Text('Career Rec!'),
           backgroundColor: Colors.black,
         ),
         body: Center(
