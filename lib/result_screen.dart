@@ -59,7 +59,7 @@ class _ResultScreenState extends State<ResultScreen>
     """;
 
     // futureResult = fetchResultFromGPT();
-    futureResult = fetchResultFromBard();
+    futureResult = fetchResultFromGemini();
   }
 
   Future<ResultData> fetchResultFromGPT() async {
@@ -97,8 +97,8 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
-Future<ResultData> fetchResultFromBard() async {
-  final apiKey = await rootBundle.loadString('assets/bard.key');
+Future<ResultData> fetchResultFromGemini() async {
+  final apiKey = await rootBundle.loadString('assets/gemini.key');
   final endpoint =
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?alt=sse&key=$apiKey";
 

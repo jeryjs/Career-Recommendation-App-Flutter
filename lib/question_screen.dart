@@ -157,7 +157,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       alignment: Alignment.center,
                       width: min(560, screenSize.width * 0.9),
                       height: Platform.isAndroid || Platform.isIOS
-                          ? screenSize.height * 0.45
+                          ? screenSize.height * 0.4
                           : max(60, 0.9582 * screenSize.height - 410), //using formula y=mx+c (slope intercept)
                       padding: const EdgeInsets.all(8.0),
                       child: SingleChildScrollView(

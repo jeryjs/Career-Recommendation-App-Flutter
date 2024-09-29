@@ -42,7 +42,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 assets/api.key
-assets/bard.key
+assets/gemini.key
 assets/gpt.key
 assets/openai.key
 .vscode/settings.json

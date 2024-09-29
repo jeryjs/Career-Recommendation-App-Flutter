@@ -52,7 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void initMessage() async {
     setState(() => _awaitingResponse = true);
-    String response = await fetchResultFromBard(
+    String response = await fetchResultFromGemini(
         'Why was I recommended the career [${widget.career}]');
     setState(() {
       _addMessage(response, false);
@@ -61,7 +61,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _addMessage(String response, bool isUserMessage) {
-    _chatHistory.add(MessageBubble(content: response, isUserMessage: isUserMessage));
+    _chatHistory
+        .add(MessageBubble(content: response, isUserMessage: isUserMessage));
     final chatHistoryJson = _chatHistory.map((bubble) {
       return {"content": bubble.content, "isUserMessage": bubble.isUserMessage};
     }).toList();
@@ -88,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _addMessage(message, true);
       _awaitingResponse = true;
     });
-    final result = await fetchResultFromBard(message);
+    final result = await fetchResultFromGemini(message);
     setState(() {
       _addMessage(result, false);
       _awaitingResponse = false;
@@ -124,9 +125,10 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<String> fetchResultFromBard(String message) async {
-    final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?alt=sse&key=$apiKey";
+  Future<String> fetchResultFromGemini(String message) async {
+    final apiKey = await rootBundle.loadString('assets/gemini.key');
+    final endpoint =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?alt=sse&key=$apiKey";
 
     final chatHistory = _chatHistory.map((bubble) {
       return {"content": bubble.content};
@@ -139,29 +141,36 @@ class _ChatScreenState extends State<ChatScreen> {
       body: jsonEncode({
         'system_instruction': {
           'parts': [
-        {'text': '''
+            {
+              'text': '''
           You are Nero, a very friendly, discerning career recommendation bot who helps students pick the best career for them and answer in markdown.
           You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
           You are chatting with a student who is interested in the career ["${widget.career}"] and so will speak only regarding it.
           The student asks you to tell them more about the career and provide some suggestions on what they should learn first.
           You respond to them with the most helpful information you can think of as well as base your answers on their previous
           questions and the answers they have provided in the following survey json:\n${widget.ans.toJson()}'''
-        }
+            }
           ],
         },
         'contents': [
           {
-        'role': 'user',
-        'parts': [
-          {'text': message}
-        ],
+            'role': 'user',
+            'parts': [
+              {'text': message}
+            ],
           },
         ],
         'safetySettings': [
           {'category': 'HARM_CATEGORY_HARASSMENT', 'threshold': 'BLOCK_NONE'},
           {'category': 'HARM_CATEGORY_HATE_SPEECH', 'threshold': 'BLOCK_NONE'},
-          {'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold': 'BLOCK_NONE'},
-          {'category': 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold': 'BLOCK_NONE'},
+          {
+            'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            'threshold': 'BLOCK_NONE'
+          },
+          {
+            'category': 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            'threshold': 'BLOCK_NONE'
+          },
         ],
         'generationConfig': {
           'candidateCount': 1,
@@ -199,21 +208,32 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Text('Share Chat'),
-                    content: const Text('How would you like to share your conversation?'),
+                    content: const Text(
+                        'How would you like to share your conversation?'),
                     actions: [
                       TextField(
                         controller: _exportWAController,
-                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
-                        decoration: textFormDecoration("Share Via WhatsApp", "Enter your WA Number", Icons.message_outlined, context: context).copyWith(
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        decoration: textFormDecoration("Share Via WhatsApp",
+                                "Enter your WA Number", Icons.message_outlined,
+                                context: context)
+                            .copyWith(
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.send),
                             onPressed: () async {
                               String number = _exportWAController.text;
-                              if (!number.startsWith('966')) number = '966$number';
-                              if (![9,12].contains(number.length)) return;
+                              if (!number.startsWith('966'))
+                                number = '966$number';
+                              if (![9, 12].contains(number.length)) return;
                               Navigator.of(context).pop();
-                              String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}').join('\n\n');
-                              await launchUrlString('https://wa.me/$number?text=${Uri.encodeComponent(chatHistory)}');
+                              String chatHistory = _chatHistory
+                                  .map((message) =>
+                                      '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}')
+                                  .join('\n\n');
+                              await launchUrlString(
+                                  'https://wa.me/$number?text=${Uri.encodeComponent(chatHistory)}');
                             },
                           ),
                         ),
@@ -221,18 +241,28 @@ class _ChatScreenState extends State<ChatScreen> {
                       const Padding(padding: EdgeInsets.only(top: 24)),
                       TextField(
                         controller: _exportEmailController,
-                        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.deny(RegExp(' '))],
-                        decoration: textFormDecoration("Share Via Email", "Enter your Email Address", Icons.email_outlined, context: context).copyWith(
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.send),
-                            onPressed: () async {
-                              String mail = _exportEmailController.text;
-                              if (!mail.contains(RegExp(r'@\w+\.\w+.*$'))) return;
-                              String chatHistory = _chatHistory.map((message) => '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}').join('\n\n');
-                              await launchUrlString('mailto:$mail?subject=Career Rec! Chat History&body=${Uri.encodeComponent(chatHistory)}');
-                            }
-                          )
-                        ),
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.deny(RegExp(' '))
+                        ],
+                        decoration: textFormDecoration(
+                                "Share Via Email",
+                                "Enter your Email Address",
+                                Icons.email_outlined,
+                                context: context)
+                            .copyWith(
+                                suffixIcon: IconButton(
+                                    icon: const Icon(Icons.send),
+                                    onPressed: () async {
+                                      String mail = _exportEmailController.text;
+                                      if (!mail.contains(
+                                          RegExp(r'@\w+\.\w+.*$'))) return;
+                                      String chatHistory = _chatHistory
+                                          .map((message) =>
+                                              '${message.isUserMessage ? '*You*: ' : '*Nero*: '}${message.content}')
+                                          .join('\n\n');
+                                      await launchUrlString(
+                                          'mailto:$mail?subject=Career Rec! Chat History&body=${Uri.encodeComponent(chatHistory)}');
+                                    })),
                       ),
                       const Padding(padding: EdgeInsets.only(top: 16)),
                       TextButton(
@@ -251,22 +281,143 @@ class _ChatScreenState extends State<ChatScreen> {
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: min(720, screenSize.width * 0.95),
-                  child: AnimatedList(
-                    key: _listKey,
-                    controller: _scrollController,
-                    initialItemCount: _chatHistory.length,
-                    itemBuilder: (context, index, animation) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1, 0),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: _chatHistory[index],
-                      );
-                    },
-                  ),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            // width: min(720, screenSize.width * 0.95),
+                            child: AnimatedList(
+                              key: _listKey,
+                              controller: _scrollController,
+                              initialItemCount: _chatHistory.length,
+                              itemBuilder: (context, index, animation) {
+                                return SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(1, 0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: _chatHistory[index],
+                                );
+                              },
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: clrSchm.primary.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12.0),
+                                border: Border.all(color: clrSchm.secondary, width: 1),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: !_awaitingResponse
+                                        ? RawKeyboardListener(
+                                            focusNode: FocusNode(),
+                                            onKey: (RawKeyEvent event) {
+                                              if (event is RawKeyDownEvent) {
+                                                if (event.logicalKey ==
+                                                    LogicalKeyboardKey.enter) {
+                                                  if (event.isShiftPressed) {
+                                                    _messageController.text =
+                                                        '${_messageController.text}\n';
+                                                    _messageController.selection =
+                                                        TextSelection.fromPosition(
+                                                            TextPosition(
+                                                                offset:
+                                                                    _messageController
+                                                                        .text.length));
+                                                  } else {
+                                                    _onSubmitted(
+                                                        _messageController.text);
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            child: TextField(
+                                              minLines: 1,
+                                              maxLines: 5,
+                                              controller: _messageController,
+                                              onSubmitted: _onSubmitted,
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    'What would you like to know...',
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(12.0)),
+                                                prefixIcon: Icon(Icons.question_answer,
+                                                    color: clrSchm.primary),
+                                              ),
+                                            ),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                  height: 24,
+                                                  width: 24,
+                                                  child: SpinKitPouringHourGlassRefined(
+                                                      color: clrSchm.primary)),
+                                              Padding(
+                                                padding: const EdgeInsets.all(16),
+                                                child: StreamBuilder<String>(
+                                                  stream: Stream.periodic(
+                                                      const Duration(seconds: 3),
+                                                      (i) => loadingPhrases[Random()
+                                                          .nextInt(
+                                                              loadingPhrases.length)]),
+                                                  builder: (context, snapshot) {
+                                                    return AnimatedSwitcher(
+                                                      duration: const Duration(
+                                                          milliseconds: 300),
+                                                      transitionBuilder: (Widget child,
+                                                          Animation<double> animation) {
+                                                        return FadeTransition(
+                                                          opacity: animation,
+                                                          child: ScaleTransition(
+                                                              scale: animation,
+                                                              alignment:
+                                                                  Alignment.centerLeft,
+                                                              child: child),
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        snapshot.data ??
+                                                            loadingPhrases[Random()
+                                                                .nextInt(loadingPhrases
+                                                                    .length)],
+                                                        key: ValueKey<String>(snapshot
+                                                                .data ??
+                                                            loadingPhrases[Random()
+                                                                .nextInt(loadingPhrases
+                                                                    .length)]),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                  ),
+                                  IconButton(
+                                    onPressed: !_awaitingResponse
+                                        ? () =>
+                                            _onSubmitted(_messageController.text.trim())
+                                        : null,
+                                    icon: Icon(Icons.send, color: clrSchm.primary),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -314,100 +465,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ],
             ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: clrSchm.primary.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(color: clrSchm.secondary, width: 1),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: !_awaitingResponse
-                  ? RawKeyboardListener(
-                      focusNode: FocusNode(),
-                      onKey: (RawKeyEvent event) {
-                        if (event is RawKeyDownEvent) {
-                          if (event.logicalKey == LogicalKeyboardKey.enter) {
-                            if (event.isShiftPressed) {
-                              _messageController.text =
-                                  '${_messageController.text}\n';
-                              _messageController.selection =
-                                  TextSelection.fromPosition(TextPosition(
-                                      offset: _messageController.text.length));
-                            } else {
-                              _onSubmitted(_messageController.text);
-                            }
-                          }
-                        }
-                      },
-                      child: TextField(
-                        minLines: 1,
-                        maxLines: 5,
-                        controller: _messageController,
-                        onSubmitted: _onSubmitted,
-                        decoration: InputDecoration(
-                          hintText: 'What would you like to know...',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0)),
-                          prefixIcon: Icon(Icons.question_answer,
-                              color: clrSchm.primary),
-                        ),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: SpinKitPouringHourGlassRefined(
-                                color: clrSchm.primary)),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: StreamBuilder<String>(
-                            stream: Stream.periodic(
-                                const Duration(seconds: 3),
-                                (i) => loadingPhrases[
-                                    Random().nextInt(loadingPhrases.length)]),
-                            builder: (context, snapshot) {
-                              return AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                transitionBuilder: (Widget child,
-                                    Animation<double> animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: ScaleTransition(
-                                        scale: animation,
-                                        alignment: Alignment.centerLeft,
-                                        child: child),
-                                  );
-                                },
-                                child: Text(
-                                  snapshot.data ??
-                                      loadingPhrases[Random()
-                                          .nextInt(loadingPhrases.length)],
-                                  key: ValueKey<String>(snapshot.data ??
-                                      loadingPhrases[Random()
-                                          .nextInt(loadingPhrases.length)]),
-                                ),
-                              );
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-            ),
-            IconButton(
-              onPressed: !_awaitingResponse
-                  ? () => _onSubmitted(_messageController.text.trim())
-                  : null,
-              icon: Icon(Icons.send, color: clrSchm.primary),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

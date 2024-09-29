@@ -1,15 +1,15 @@
 ## Career Rec! - A Flutter Career Recommendation App
 
-This is a Demo Flutter project for recommending Careers intelligently using the power of Google's Bard AI model. The app features a user-friendly interface that guides users through a series of questions to understand their interests and preferences. 
+This is a Demo Flutter project for recommending Careers intelligently using the power of Google's Gemini AI model. The app features a user-friendly interface that guides users through a series of questions to understand their interests and preferences. 
 
-Based on the user's responses, the app leverages Bard AI to generate a personalized list of suitable career paths.  Each recommendation is accompanied by a concise explanation, highlighting why it aligns with the user's profile, and a breakdown of essential skills for success in that field. 
+Based on the user's responses, the app leverages Gemini AI to generate a personalized list of suitable career paths.  Each recommendation is accompanied by a concise explanation, highlighting why it aligns with the user's profile, and a breakdown of essential skills for success in that field. 
 
-To enhance the user experience, Career Rec! also includes a built-in chatbot powered by Bard AI. This chatbot allows users to engage in further discussions about the recommended careers, providing valuable insights and answering any questions they might have. Additionally, users can conveniently export their chat history via email or WhatsApp for future reference or to share with others.
+To enhance the user experience, Career Rec! also includes a built-in chatbot powered by Gemini AI. This chatbot allows users to engage in further discussions about the recommended careers, providing valuable insights and answering any questions they might have. Additionally, users can conveniently export their chat history via email or WhatsApp for future reference or to share with others.
 
 ### Features
 
 - **Personalized Career Recommendations:**  Receive tailored career suggestions based on your interests and preferences.
-- **AI-Powered Insights:** Benefit from the intelligence of Google's Bard AI for accurate and relevant recommendations.
+- **AI-Powered Insights:** Benefit from the intelligence of Google's Gemini AI for accurate and relevant recommendations.
 - **Interactive Chatbot:**  Engage in deeper conversations about recommended careers with a helpful chatbot.
 - **Chat History Export:** Conveniently share your chat history via email or WhatsApp.
 
@@ -37,9 +37,9 @@ https://github.com/jeryjs/Career-Recommendation-App-Flutter/assets/77010142/a2c3
    - Click on "Create API key".
    - Copy the generated API key.
 
-4. **Create `bard.key` file:**
+4. **Create `gemini.key` file:**
 
-   - In the project's `assets` directory, create a new file named `bard.key`.
+   - In the project's `assets` directory, create a new file named `gemini.key`.
    - Paste your Google AI Studio API key into this file and save.
 
 5. **Run the app:**
