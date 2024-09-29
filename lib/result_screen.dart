@@ -97,28 +97,50 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
-  Future<ResultData> fetchResultFromBard() async {
-    final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint =
-        "https://generativelanguage.googleapis.com/v1beta3/models/text-bison-001:generateText?key=$apiKey";
-    final response = await http.post(
-      Uri.parse(endpoint),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'prompt': {
-          'text': '$systemString\n\n$userString',
-        },
-      }),
-    );
+Future<ResultData> fetchResultFromBard() async {
+  final apiKey = await rootBundle.loadString('assets/bard.key');
+  final endpoint =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?alt=sse&key=$apiKey";
 
-    if (response.statusCode == 200) {
-      String result = jsonDecode(response.body)['candidates'][0]['output'];
-      debugPrint('Result: $result');
-      return ResultData.fromJson(result);
-    } else {
-      throw Exception('Failed to load result: ${response.body}');
-    }
+  final response = await http.post(
+    Uri.parse(endpoint),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'system_instruction': {
+        'parts': [
+          {'text': 'system: $systemString'}
+        ],
+      },
+      'contents': [
+        {
+          'role': 'user',
+          'parts': [
+            {'text': '$userString'}
+          ],
+        },
+      ],
+      'safetySettings': [
+        {'category': 'HARM_CATEGORY_HARASSMENT', 'threshold': 'BLOCK_NONE'},
+        {'category': 'HARM_CATEGORY_HATE_SPEECH', 'threshold': 'BLOCK_NONE'},
+        {'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold': 'BLOCK_NONE'},
+        {'category': 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold': 'BLOCK_NONE'},
+      ],
+      'generationConfig': {
+        'candidateCount': 1,
+        'temperature': 1.2,
+        'topP': 0.8,
+      },
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    String result = jsonDecode(response.body.replaceFirst("data: ", ""))['candidates'][0]['content']['parts'][0]['text'];
+    debugPrint('Result: $result');
+    return ResultData.fromJson(result);
+  } else {
+    throw Exception('Failed to load result: ${response.body}');
   }
+}
 
   @override
   Widget build(BuildContext context) {

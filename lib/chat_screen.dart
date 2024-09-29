@@ -126,8 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<String> fetchResultFromBard(String message) async {
     final apiKey = await rootBundle.loadString('assets/bard.key');
-    final endpoint =
-        "https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=$apiKey";
+    final endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?alt=sse&key=$apiKey";
 
     final chatHistory = _chatHistory.map((bubble) {
       return {"content": bubble.content};
@@ -138,55 +137,44 @@ class _ChatScreenState extends State<ChatScreen> {
       Uri.parse(endpoint),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        "prompt": {
-          "context": '''
-            You are Nero, a very friendly, discerning career recommendation bot who helps students pick the best career for them and answer in markdown.
-            You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
-            You are chatting with a student who is interested in the career ["${widget.career}"] and so will speak only regarding it.
-            The student asks you to tell them more about the career and provide some suggestions on what they should learn first.
-            You respond to them with the most helpful information you can think of as well as base your answers on their previous
-            questions and the answers they have provided in the following survey json:\n${widget.ans.toJson()}''',
-          "examples": [
-            {
-              "input": {"content": "Who are you."},
-              "output": {
-                "content":
-                    "I'm Nero, a helpful career recommending bot. I've been trained to help you pick a career for your higher studies."
-              }
-            },
-            {
-              "input": {
-                "content": "Let's talk about smoething other than the career."
-              },
-              "output": {
-                "content":
-                    "I apollogise if I am not making this conversation fun enough, but I cant talk about anything unrelated to the career. So, to make things interesting, how about we play a small game to help u get a better idea of your career?."
-              }
-            },
-            {
-              "input": {"content": "What is the career about?"},
-              "output": {
-                "content":
-                    "That's a very good question!! The career is about ${widget.career}. It is a very interesting career that will help you learn a lot of things."
-              }
-            }
+        'system_instruction': {
+          'parts': [
+        {'text': '''
+          You are Nero, a very friendly, discerning career recommendation bot who helps students pick the best career for them and answer in markdown.
+          You are trained to reject to answer questions that are too offtopic and reply in under 40-60 words unless more are needed.
+          You are chatting with a student who is interested in the career ["${widget.career}"] and so will speak only regarding it.
+          The student asks you to tell them more about the career and provide some suggestions on what they should learn first.
+          You respond to them with the most helpful information you can think of as well as base your answers on their previous
+          questions and the answers they have provided in the following survey json:\n${widget.ans.toJson()}'''
+        }
           ],
-          "messages": chatHistory,
         },
-        "candidate_count": 1,
-        "top_p": 0.8,
-        "temperature": 0.7,
+        'contents': [
+          {
+        'role': 'user',
+        'parts': [
+          {'text': message}
+        ],
+          },
+        ],
+        'safetySettings': [
+          {'category': 'HARM_CATEGORY_HARASSMENT', 'threshold': 'BLOCK_NONE'},
+          {'category': 'HARM_CATEGORY_HATE_SPEECH', 'threshold': 'BLOCK_NONE'},
+          {'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT', 'threshold': 'BLOCK_NONE'},
+          {'category': 'HARM_CATEGORY_DANGEROUS_CONTENT', 'threshold': 'BLOCK_NONE'},
+        ],
+        'generationConfig': {
+          'candidateCount': 1,
+          'temperature': 0.7,
+          'topP': 0.8,
+        },
       }),
     );
     debugPrint("$chatHistory");
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body.replaceFirst("data: ", ""));
       debugPrint('Response: $json');
-      if (json['filters'] != null) {
-        return "Whoops~ Looks like your response was too offtopic, so it was filtered due to reason [${json['filters'][0]['reason']}].\nLet's try again, shall we?";
-      } else {
-        return json['candidates'][0]['content'];
-      }
+      return json['candidates'][0]['content']['parts'][0]['text'];
     } else {
       // throw Exception('Failed to load result: ${response.body}');
       return 'Status [${response.statusCode}]\nFailed to load result: ${response.body}';
